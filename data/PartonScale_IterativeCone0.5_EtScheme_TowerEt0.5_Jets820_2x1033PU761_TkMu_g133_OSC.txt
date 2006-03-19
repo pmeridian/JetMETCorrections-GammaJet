@@ -1,0 +1,22 @@
+#  RecQuery myQuery("PersistentJetFinder");
+#  myQuery.setParameter<int>("JetAlgorithm",2);
+#  myQuery.setParameter<int>("JetRecom",4);
+#  myQuery.setParameter("ConeCut",0.5);
+#  myQuery.setParameter("ConeSeedEtCut",0.0);
+#  myQuery.setParameter("JetInput","EcalPlusHcalTowerInput");
+#  myQuery.setParameter("EcalPlusHcalTowerEt",0.5);
+#  myQuery.setParameter("JetCalibration","no");
+
+0.226  2    25.    0.     0.     0.    0.    0.5700  0.0500   -22.0   130.
+0.441  2    25.    0.     0.     0.    0.    0.5600  0.0500   -22.0   130.
+0.751  2    25.    0.     0.     0.    0.    0.5450  0.0500   -23.0   130.
+0.991  2    25.    0.     0.     0.    0.    0.5250  0.0510   -23.0   130.
+1.240  2    25.    0.     0.     0.    0.    0.5200  0.0500   -23.0   130.
+1.496  2    25.    0.     0.     0.    0.    0.5200  0.0500   -22.8   130.
+1.757  2    25.    0.     0.     0.    0.    0.5300  0.0500   -22.5   130.
+2.046  2    25.    0.     0.     0.    0.    0.5500  0.0500   -22.0   130.
+2.295  2    25.    0.     0.     0.    0.    0.5650  0.0505   -21.4   130.
+2.487  2    25.    0.     0.     0.    0.    0.5800  0.0500   -21.0   130.
+2.690  2    25.    0.     0.     0.    0.    0.5950  0.0500   -20.5   130.
+2.916  2    25.    0.     0.     0.    0.    0.6100  0.0500   -20.0   130.
+3.284  2    25.    0.     0.     0.    0.    0.6300  0.0500   -19.0   130.

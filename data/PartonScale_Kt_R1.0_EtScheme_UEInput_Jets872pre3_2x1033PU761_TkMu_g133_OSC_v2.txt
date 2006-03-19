@@ -1,0 +1,23 @@
+#    RecQuery myQuery("PersistentJetFinder");
+#    myQuery.setParameter<int>("JetAlgorithm",4);
+#    myQuery.setParameter<int>("JetRecom",4);
+#    myQuery.setParameter("KtJetRParameter",1.0);
+#    myQuery.setParameter<string>("JetInput","EcalPlusHcalTowerUEInput");
+#    myQuery.setParameter<string>("JetCalibration","no");
+#    myQuery.setParameter("JetEtCut",5.0);
+#    myQuery.setParameter<string>("JetSortType","byEt");
+
+0.226  2   20.   0.     0.     0.    0.    0.3600  0.0845   -13.0   140.
+0.441  2   20.   0.     0.     0.    0.    0.3650  0.0830   -15.0   140.
+0.751  2   20.   0.     0.     0.    0.    0.3600  0.0830   -15.0   140.
+0.991  2   20.   0.     0.     0.    0.    0.3700  0.0800   -14.8   140.
+1.240  2   20.   0.     0.     0.    0.    0.3700  0.0800   -14.0   140.
+1.496  2   20.   0.     0.     0.    0.    0.3800  0.0800   -13.3   140.
+1.757  2   20.   0.     0.     0.    0.    0.4050  0.0800   -13.7   140.
+2.046  2   20.   0.     0.     0.    0.    0.4550  0.0750   -15.0   140.
+2.295  2   20.   0.     0.     0.    0.    0.5470  0.0600   -18.0   140.
+2.487  2   20.   0.     0.     0.    0.    0.5850  0.0550   -18.8   140.
+2.690  2   20.   0.     0.     0.    0.    0.5980  0.0550   -19.0   140.
+2.916  2   20.   0.     0.     0.    0.    0.6100  0.0550   -19.2   140.
+3.284  2   20.   0.     0.     0.    0.    0.6200  0.0550   -19.4   140.
+
