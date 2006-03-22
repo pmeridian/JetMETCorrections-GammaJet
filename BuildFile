@@ -4,7 +4,6 @@
 <use name=Foundation/PluginManager>
 <use name=FWCore/ParameterSet>
 <use name=DataFormats/JetObjects>
-<use name=Dictionary/Reflex>
 <flags SEAL_PLUGIN_NAME="JetMETCorrectionsGammaJet">
 <export>
    <lib name=JetMETCorrectionsGammaJet>
@@ -13,6 +12,5 @@
    <use name=FWCore/ParameterSet>
    <use name=DataFormats/JetObjects>
    <use name=FWCore/EDProduct>
-   <use name=Dictionary/Reflex>
    <use name=clhep>
 </export>

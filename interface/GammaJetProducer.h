@@ -7,7 +7,7 @@
 */
 
 #include "FWCore/Framework/interface/EDProducer.h"
-#include "FWCore/EDProduct/interface/EDProduct.h"
+#include "DataFormats/Common/interface/EDProduct.h"
 
 #include "JetMETCorrections/GammaJet/interface/JetCalibratorGammaJet.h"
 
