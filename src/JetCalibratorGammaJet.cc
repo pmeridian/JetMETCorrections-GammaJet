@@ -1,5 +1,5 @@
 #include "JetMETCorrections/GammaJet/interface/JetCalibratorGammaJet.h"
-#include "DataFormats/JetObjects/interface/CaloJet.h"
+#include "DataFormats/JetReco/interface/CaloJet.h"
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 
 #include <vector>

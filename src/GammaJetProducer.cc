@@ -13,7 +13,7 @@
 //
 // Original Author:  Olga Kodolova
 //         Created:  Wed Feb  1 17:04:23 CET 2006
-// $Id: GammaJetProducer.cc,v 1.2 2006/03/08 08:30:05 kodolova Exp $
+// $Id: GammaJetProducer.cc,v 1.1 2006/03/19 16:36:46 kodolova Exp $
 //
 //
 
@@ -28,7 +28,7 @@
 #include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DataFormats/JetObjects/interface/CaloJetCollection.h"
+#include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "JetMETCorrections/GammaJet/interface/GammaJetProducer.h"
 #include "JetMETCorrections/GammaJet/interface/JetCalibratorGammaJet.h"
 using namespace std;

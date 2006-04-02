@@ -3,14 +3,14 @@
 <use name=FWCore/Framework>
 <use name=Foundation/PluginManager>
 <use name=FWCore/ParameterSet>
-<use name=DataFormats/JetObjects>
+<use name=DataFormats/JetReco>
 <flags SEAL_PLUGIN_NAME="JetMETCorrectionsGammaJet">
 <export>
    <lib name=JetMETCorrectionsGammaJet>
    <use name=FWCore/Framework>
    <use name=Foundation/PluginManager>
    <use name=FWCore/ParameterSet>
-   <use name=DataFormats/JetObjects>
+   <use name=DataFormats/JetReco>
    <use name=FWCore/EDProduct>
    <use name=clhep>
 </export>
