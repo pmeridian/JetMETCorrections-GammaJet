@@ -13,7 +13,7 @@
 //
 // Original Author:  Olga Kodolova
 //         Created:  Wed Feb  1 17:04:23 CET 2006
-// $Id: GammaJetProducer.cc,v 1.1 2006/03/19 16:36:46 kodolova Exp $
+// $Id: GammaJetProducer.cc,v 1.2 2006/04/02 10:17:02 kodolova Exp $
 //
 //
 
@@ -32,7 +32,7 @@
 #include "JetMETCorrections/GammaJet/interface/GammaJetProducer.h"
 #include "JetMETCorrections/GammaJet/interface/JetCalibratorGammaJet.h"
 using namespace std;
-
+using namespace reco;
 namespace cms 
 {
 
