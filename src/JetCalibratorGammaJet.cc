@@ -148,7 +148,7 @@ void JetCalibratorGammaJet::setParameters(std::string aCalibrationType)
     }
 }
 
-CaloJet JetCalibratorGammaJet::applyCorrection( const CaloJet& fJet) 
+reco::CaloJet JetCalibratorGammaJet::applyCorrection( const reco::CaloJet& fJet) 
 {
   if(parametrization.empty()) { return fJet; }
   
@@ -186,7 +186,7 @@ CaloJet JetCalibratorGammaJet::applyCorrection( const CaloJet& fJet)
          float mScale = etnew/et;
          Jet::LorentzVector common (fJet.px()*mScale, fJet.py()*mScale,
                            fJet.pz()*mScale, fJet.energy()*mScale);
-         CaloJet theJet (common, fJet.getSpecific (), fJet.getTowerIndices());
+         reco::CaloJet theJet (common, fJet.getSpecific (), fJet.getTowerIndices());
 	 cout<<" The new jet is created "<<endl;
 	 		
      return theJet;
