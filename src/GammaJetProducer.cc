@@ -13,7 +13,7 @@
 //
 // Original Author:  Olga Kodolova
 //         Created:  Wed Feb  1 17:04:23 CET 2006
-// $Id: GammaJetProducer.cc,v 1.2 2006/04/02 10:17:02 kodolova Exp $
+// $Id: GammaJetProducer.cc,v 1.3 2006/06/28 16:54:44 kodolova Exp $
 //
 //
 
@@ -41,7 +41,7 @@ namespace cms
 //
 GammaJet::GammaJet(const edm::ParameterSet& iConfig): 
                                            mAlgorithm(),
-					   mInput(iConfig.getParameter<string>("src")),
+					   mInput(iConfig.getParameter<edm::InputTag>("src")),
 					   mTag(iConfig.getParameter<string>("tagName"))
 
 {
