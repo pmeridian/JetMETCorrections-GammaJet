@@ -3,4 +3,4 @@
 #include "JetMETCorrections/GammaJet/interface/GammaJetProducer.h"
 using cms::GammaJet;
 DEFINE_SEAL_MODULE();
-DEFINE_ANOTHER_FWK_MODULE(GammaJet)
+DEFINE_ANOTHER_FWK_MODULE(GammaJet);
