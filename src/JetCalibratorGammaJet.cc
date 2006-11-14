@@ -75,7 +75,7 @@ double ParametrizationGammaJet::value(double e)const{
     break;
   }
   return enew;
-};
+}
 
 class   JetCalibrationParameterSetGammaJet{
 public:
