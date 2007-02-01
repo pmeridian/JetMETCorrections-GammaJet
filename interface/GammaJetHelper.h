@@ -5,8 +5,6 @@
 #include <string>
 #include <vector>
 
-using namespace std;
-
 class GammaJetHelper{
 
  public:
@@ -22,7 +20,7 @@ class GammaJetHelper{
 
  private:
 
-  string theCalibrationType;
+  std::string theCalibrationType;
   
 };
 #endif
