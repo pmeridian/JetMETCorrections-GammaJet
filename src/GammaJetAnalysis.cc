@@ -11,6 +11,8 @@
 
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 #include "DataFormats/Common/interface/Provenance.h"
+
+
 using namespace std;
 namespace cms
 {
@@ -91,6 +93,11 @@ void GammaJetAnalysis::beginJob( const edm::EventSetup& iSetup)
    myTree->Branch("run",  &run, "run/I");
    myTree->Branch("event",  &event, "event/I");
    
+   NumRecoJets = 0;
+   NumGenJets = 0;
+   NumRecoGamma = 0;
+   NumRecoTrack = 0;
+   NumPart = 0;
 // Jet block
    myTree->Branch("NumRecoJets", &NumRecoJets, "NumRecoJets/I");   
    myTree->Branch("JetRecoEt",  JetRecoEt, "JetRecoEt[10]/F");
@@ -298,10 +305,18 @@ GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	{
 	   motherline2 = (*theGenPartPair.find((*Part)->secondMother())).second;
 	} else  motherline2 = 0;
-	vx = (*Part)->production_vertex()->position().x();
-	vy = (*Part)->production_vertex()->position().y();
-	vy = (*Part)->production_vertex()->position().z();
-	vt = (*Part)->production_vertex()->position().t();
+	
+//	vx = (*Part)->production_vertex()->position().x();
+//	vy = (*Part)->production_vertex()->position().y();
+//	vy = (*Part)->production_vertex()->position().z();
+//	vt = (*Part)->production_vertex()->position().t();
+
+	vx = (*Part)->creationVertex().x();
+	vy = (*Part)->creationVertex().y();
+	vy = (*Part)->creationVertex().z();
+	vt = (*Part)->creationVertex().t();
+	
+	
     } 
     if((*Part)->end_vertex())
     {
@@ -371,9 +386,11 @@ GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 				  ntype = 2;
 	}
   }
-  (*myout_part)<<endl;
-  (*myout_part)<<theGenPart.size()<<endl; 
+//  (*myout_part)<<endl;
+//  (*myout_part)<<theGenPart.size()<<endl; 
 // Load Jets Calo and Gen
+
+     cout<<" Reading gen particles finished "<<endl; 
 
     std::vector<edm::InputTag>::const_iterator ic;
     int jettype = 0;
@@ -389,7 +406,7 @@ GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
        edm::Handle<reco::CaloJetCollection> jets;
        iEvent.getByLabel(*ic, jets);
        reco::CaloJetCollection::const_iterator jet = jets->begin ();
-//       cout<<" Size of jets "<<jets->size()<<endl;
+       cout<<" Size of jets "<<jets->size()<<endl;
         jettype++;
        
         
@@ -402,9 +419,9 @@ GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 //            cout<<*ic<<" "<<" et "<<(*jet).et()<<" "<<(*jet).eta()<<" "<<(*jet).phi()<<endl;
 	    ij++;
 	    if(ij<4) (*myout_jet)<<jettype<<" "<<reco<<" "<<ij<<" "<<(*jet).et()<<" "<<(*jet).eta()<<" "<<(*jet).phi()
-	    <<" "<<iEvent.id().run()<<" "<<iEvent.id().event()<<endl;
+	    <<" "<<iEvent.id().event()<<endl;
 	    jetexist = ij;
-	    if( NumRecoJets < 10 )
+	    if( NumRecoJets < 8 )
 	    {
 	     JetRecoEt[NumRecoJets] = (*jet).et();
 	     JetRecoEta[NumRecoJets] = (*jet).eta();
@@ -419,7 +436,7 @@ GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
      }
    }
      if( jetexist < 0 ) (*myout_jet)<<jetexist<<" "<<reco<<" "<<etlost
-                         <<" "<<etlost<<" "<<etlost<<" "<<iEvent.id().run()
+                         <<" "<<etlost<<" "<<etlost
 			 <<" "<<iEvent.id().event()<<endl;
     jettype = 0;
     jetexist = -100;
@@ -446,7 +463,7 @@ GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	    if(ij<4) (*myout_jet)<<jettype<<" "<<reco<<" "<<ij<<" "<<(*jet).et()<<" "<<(*jet).eta()<<" "<<(*jet).phi()
 	    <<" "<<iEvent.id().event()<<endl;
 	    jetexist = jettype;	
-	    if( NumGenJets < 10 )
+	    if( NumGenJets < 8 )
 	    {    
 	      JetGenEt[NumGenJets] = (*jet).et();
 	      JetGenEta[NumGenJets] = (*jet).eta();
@@ -463,7 +480,7 @@ GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
    }
    
      if( jetexist < 0 ) (*myout_jet)<<jetexist<<" "<<reco<<" "<<etlost
-                         <<" "<<etlost<<" "<<etlost<<" "<<iEvent.id().run()
+                         <<" "<<etlost<<" "<<etlost
 			 <<" "<<iEvent.id().event()<<endl;
 
 // Load EcalRecHits
@@ -477,8 +494,6 @@ GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
       edm::Handle<EcalRecHitCollection> ec;
       iEvent.getByLabel(*i,ec);
       
-      (*myout_ecal)<<(*ec).size()<<endl;
-
        for(EcalRecHitCollection::const_iterator recHit = (*ec).begin();
                                                 recHit != (*ec).end(); ++recHit)
        {
@@ -487,7 +502,9 @@ GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	 GlobalPoint pos = geo->getPosition(recHit->detid());
          theRecHits.push_back(*recHit);
 
-	 (*myout_ecal)<<recHit->detid().subdetId()<<" "<<(*recHit).energy()<<" "<<pos.phi()<<" "<<pos.eta()<<endl;    
+	 if( (*recHit).energy()> ecut[recHit->detid().subdetId()-1][0] ) (*myout_ecal)<<recHit->detid().subdetId()<<" "<<(*recHit).energy()<<" "<<pos.phi()<<" "<<pos.eta()
+	 <<" "<<iEvent.id().event()<<endl;
+	     
        } 
       
     } catch (std::exception& e) { // can't find it!
@@ -501,14 +518,15 @@ GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
       edm::Handle<HBHERecHitCollection> hbhe;
       iEvent.getByLabel(hbheLabel_,hbhe);
       
-      (*myout_hcal)<<(*hbhe).size()<<endl;
+//      (*myout_hcal)<<(*hbhe).size()<<endl;
   for(HBHERecHitCollection::const_iterator hbheItr = (*hbhe).begin();
   
       hbheItr != (*hbhe).end(); ++hbheItr)
       {
         DetId id = (hbheItr)->detid();
 	GlobalPoint pos = geo->getPosition(hbheItr->detid());
-	(*myout_hcal)<<id.subdetId()<<" "<<(*hbheItr).energy()<<" "<<pos.phi()<<" "<<pos.eta()<<endl;    
+	(*myout_hcal)<<id.subdetId()<<" "<<(*hbheItr).energy()<<" "<<pos.phi()<<
+	" "<<pos.eta()<<" "<<iEvent.id().event()<<endl;    
         theRecHits.push_back(*hbheItr);
 	
       }
@@ -528,6 +546,7 @@ GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
  jetexist = -100; 
  int barrel = 1;
  NumRecoGamma = 0;
+ 
  try {
  int ij = 0;
   // Get island super clusters after energy correction
@@ -538,15 +557,11 @@ GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   for(reco::SuperClusterCollection::const_iterator aClus = correctedIslandBarrelSuperClusters->begin();
                                                            aClus != correctedIslandBarrelSuperClusters->end(); aClus++) {
     double vet = aClus->energy()/cosh(aClus->eta());
-//    std::cout<<" SuperCluster Island clusters barrel after correction "<<vet<<std::endl;
+    cout<<" Barrel supercluster " << vet <<" energy "<<aClus->energy()<<" eta "<<aClus->eta()<<endl;
     if(vet>20.) {
-    
       ij++;
-//      std::cout<<" SuperCluster energy barrel  "<<ij<<" "<<vet<<std::endl;
-      NumRecoGamma++;
       float gammaiso_ecal[9] = {0.,0.,0.,0.,0.,0.,0.,0.,0.};
-      
-      for(vector<CaloRecHit>::iterator it = theRecHits.begin(); it != theRecHits.end(); it++)
+     for(vector<CaloRecHit>::iterator it = theRecHits.begin(); it != theRecHits.end(); it++)
       {
            GlobalPoint pos = geo->getPosition(it->detid());
            double eta = pos.eta();
@@ -564,10 +579,6 @@ GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	   double ecutn = 0.;
 	   for (int i = 0; i<3; i++)
 	   {
-	   
-//             std::cout<<" Cluster-rechits "<<aClus->eta()<<" "<<eta<<" "<<aClus->phi()<<" "<<phi<<" dr "<<dr
-//	     <<" energy "<<(*it).energy()<<" et "<<(*it).energy()/cosh(eta)<<std::endl;	
-
 	     for (int j = 0; j<3; j++)
 	     {
 	     
@@ -584,41 +595,42 @@ GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 		if(it->detid().det() == DetId::Hcal ) 
 		{
 		   ecutn = ecut[2][j];
-//		       cout<<" Hcal Tower "<<eta<<" "<<phi<<" "<<dr<<" "<<(*it).energy()<<" "<<ecutn<<endl;
 		   if( dr>rmin && dr<risol[i])
 		   {
 		     if((*it).energy() > ecutn) 
 		     {
 		        gammaiso_ecal[itype_ecal] = gammaiso_ecal[itype_ecal]+(*it).energy()/cosh(eta);
-//			cout<<" Hcal energy "<<eta<<" "<<phi<<" "<<(*it).energy()/cosh(eta)<<" "<<gammaiso_ecal[itype_ecal]<<endl;
 		     }
 		   }
 		} 
 		jetexist = ij;
-		if( ij < 10 ) GammaIsoEcal[itype_ecal][NumRecoGamma-1] = gammaiso_ecal[itype_ecal]; 
 	        itype_ecal++;
 		
 	     } // Ecal
-	       
-	   } // cycle on iso radii
-	   
-      }
+	   } // cycle on iso radii      
+      } // cycle on rechits
+      
+      
 // Fill Tree      
-      EcalClusDet[NumRecoGamma-1] = 1;
-      GammaRecoEt[NumRecoGamma-1] = vet;
-      GammaRecoEta[NumRecoGamma-1] = aClus->eta();
-      GammaRecoPhi[NumRecoGamma-1] = aClus->phi();
-      
-      
+	   if( NumRecoGamma < 10 ) 
+	   {
+	    for (int ii = 0; ii<9 ; ii++)
+	    {
+	     GammaIsoEcal[ii][NumRecoGamma] = gammaiso_ecal[ii]; 
+	    } 
+             EcalClusDet[NumRecoGamma] = 1;
+             GammaRecoEt[NumRecoGamma] = vet;
+             GammaRecoEta[NumRecoGamma] = aClus->eta();
+             GammaRecoPhi[NumRecoGamma] = aClus->phi();
+	     NumRecoGamma++;
+	    }
     (*myout_photon)<<ij<<" "<<barrel<<" "<<vet<<" "<<aClus->eta()<<" "<<aClus->phi()<<" "<<iEvent.id().event()<<endl;
     (*myout_photon)<<ij<<" "<<gammaiso_ecal[0]<<" "<<gammaiso_ecal[1] <<" "<<gammaiso_ecal[2]<<" "<<gammaiso_ecal[3]
       <<" "<<gammaiso_ecal[4]<<" "<<gammaiso_ecal[5]<<" "<<gammaiso_ecal[6]<<" "<<gammaiso_ecal[7]<<" "<<gammaiso_ecal[8]<<endl;
-//    (*myout_photon)<<ij<<" "<<gammaiso_hcal[0]<<" "<<gammaiso_hcal[1] <<" "<<gammaiso_hcal[2]<<" "<<gammaiso_hcal[3]
-//      <<" "<<gammaiso_hcal[4]<<" "<<gammaiso_hcal[5]<<" "<<gammaiso_hcal[6]<<" "<<gammaiso_hcal[7]<<" "<<gammaiso_hcal[8]<<endl;
       
        jetexist = ij;
-    }  
-  }
+    } //vet  
+  } // number of superclusters
   } catch (std::exception& e) { // can't find it!
     if (!allowMissingInputs_) throw e;
   }
@@ -638,13 +650,10 @@ GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     double vet = aClus->energy()/cosh(aClus->eta());
     
 //    std::cout<<" Cluster energy in endcap "<<vet<<std::endl;
-    
+     cout<<" Endacap supercluster " << vet <<endl;
     if(vet>20.) {
-    ij++;
-//    std::cout<<" Cluster energy in endcap number "<<ij<<" "<<vet<<std::endl;
-    NumRecoGamma++;
-    float gammaiso_ecal[9] = {0.,0.,0.,0.,0.,0.,0.,0.,0.};
-    
+      ij++;
+      float gammaiso_ecal[9] = {0.,0.,0.,0.,0.,0.,0.,0.,0.};
       for(vector<CaloRecHit>::iterator it = theRecHits.begin(); it != theRecHits.end(); it++)
       {
            GlobalPoint pos = geo->getPosition(it->detid());
@@ -654,23 +663,15 @@ GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	   double dphi = fabs(phi-aClus->phi());
 	   if(dphi>4.*atan(1.)) dphi = 8.*atan(1.)-dphi;
 	   double dr = sqrt(deta*deta+dphi*dphi);
-	   
 	   double rmin = 0.07;
 	   if( fabs(aClus->eta()) > 1.47 ) rmin = 0.07*(fabs(aClus->eta())-.47)*1.2;
 	   if( fabs(aClus->eta()) > 2.2 ) rmin = 0.07*(fabs(aClus->eta())-.47)*1.4;
-	   
 	   int itype_ecal = 0;
-
 	   double ecutn = 0.;
-	   
-//	     std::cout<<" Cluster-rechits "<<aClus->eta()<<" "<<eta<<" "<<aClus->phi()<<" "<<phi<<" dr "<<dr
-//	     <<" energy "<<(*it).energy()<<" et "<<(*it).energy()/cosh(eta)<<std::endl;
-	     
 	   for (int i = 0; i<3; i++)
 	   {
 	     for (int j = 0; j<3; j++)
 	     {		
-	     
 	        if(it->detid().det() == DetId::Ecal ) 
 		{
 		  if(it->detid().subdetId() == 1) ecutn = ecut[0][j];
@@ -689,39 +690,37 @@ GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 		     if((*it).energy() > ecutn) gammaiso_ecal[itype_ecal] = gammaiso_ecal[itype_ecal]+(*it).energy()/cosh(eta);
 		   }
 		} 
-		
-		if( ij < 10 ) GammaIsoEcal[itype_ecal][NumRecoGamma-1] = gammaiso_ecal[itype_ecal]; 
 	        itype_ecal++;
-
-	     }
-	       
-	   }
-	   
-      }
-//     std::cout<<" Fill endcap ecal cluster tree "<<std::endl; 
-// Fill Tree    
-    EcalClusDet[NumRecoGamma-1] = 2;
-    GammaRecoEt[NumRecoGamma-1] = vet;
-    GammaRecoEta[NumRecoGamma-1] = aClus->eta();
-    GammaRecoPhi[NumRecoGamma-1] = aClus->phi();
-////    
+	     } // isocut
+	   } // isoradii
+      } // rechits
+// Fill Tree 
+	   if( NumRecoGamma < 20 ) 
+	   {
+	    for (int ii = 0; ii<9 ; ii++)
+	    {
+	     GammaIsoEcal[ii][NumRecoGamma] = gammaiso_ecal[ii]; 
+	    } 
+   
+              EcalClusDet[NumRecoGamma] = 2;
+              GammaRecoEt[NumRecoGamma] = vet;
+              GammaRecoEta[NumRecoGamma] = aClus->eta();
+              GammaRecoPhi[NumRecoGamma] = aClus->phi();
+	      NumRecoGamma++;
+	   }  
     (*myout_photon)<<ij<<" "<<barrel<<" "<<vet<<" "<<aClus->eta()<<" "<<aClus->phi()<<" "<<iEvent.id().event()<<endl;
     (*myout_photon)<<ij<<" "<<gammaiso_ecal[0]<<" "<<gammaiso_ecal[1] <<" "<<gammaiso_ecal[2]<<" "<<gammaiso_ecal[3]
       <<" "<<gammaiso_ecal[4]<<" "<<gammaiso_ecal[5]<<" "<<gammaiso_ecal[6]<<" "<<gammaiso_ecal[7]<<" "<<gammaiso_ecal[8]<<endl;
-//    (*myout_photon)<<ij<<" "<<gammaiso_hcal[0]<<" "<<gammaiso_hcal[1] <<" "<<gammaiso_hcal[2]<<" "<<gammaiso_hcal[3]
-//      <<" "<<gammaiso_hcal[4]<<" "<<gammaiso_hcal[5]<<" "<<gammaiso_hcal[6]<<" "<<gammaiso_hcal[7]<<" "<<gammaiso_hcal[8]<<endl;
-
       jetexist = ij;
-    }							   
-//   std::cout<<" Endcap SuperClusters after corrections "<<aClus->energy()<<std::endl;
-    
-  }
+    } // vet							   
+  } // superclusters
   // ----- hybrid 
   } catch (std::exception& e) { // can't find it!
     if (!allowMissingInputs_) throw e;
   }
     double ecluslost = -100.1;
-    if(jetexist<0) (*myout_photon)<<jetexist<<" "<<barrel<<" "<<ecluslost<<" "<<ecluslost<<" "<<ecluslost<<" "<<iEvent.id().run()<<" "<<iEvent.id().event()<<endl;
+    if(jetexist<0) (*myout_photon)<<jetexist<<" "<<barrel<<" "<<ecluslost<<" "<<ecluslost
+                                  <<" "<<ecluslost<<" "<<iEvent.id().event()<<endl;
   
 //  }
 //  if (!hoLabel_.empty()) {
@@ -730,14 +729,15 @@ GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
       edm::Handle<HORecHitCollection> ho;
       iEvent.getByLabel(hoLabel_,ho);
       
-      (*myout_hcal)<<(*ho).size()<<endl;
+//      (*myout_hcal)<<(*ho).size()<<endl;
       
   for(HORecHitCollection::const_iterator hoItr = (*ho).begin();
       hoItr != (*ho).end(); ++hoItr)
       {
         DetId id = (hoItr)->detid();
 	GlobalPoint pos = geo->getPosition(hoItr->detid());
-	(*myout_hcal)<<id.subdetId()<<" "<<(*hoItr).energy()<<" "<<pos.phi()<<" "<<pos.eta()<<endl;    
+	(*myout_hcal)<<id.subdetId()<<" "<<(*hoItr).energy()<<" "<<pos.phi()
+	<<" "<<pos.eta()<<" "<<iEvent.id().event()<<endl;    
 
       }
     } catch (std::exception& iEvent) { // can't find it!
@@ -749,13 +749,14 @@ GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
       edm::Handle<HFRecHitCollection> hf;
       iEvent.getByLabel(hfLabel_,hf);
       
-      (*myout_hcal)<<(*hf).size()<<endl;
+//      (*myout_hcal)<<(*hf).size()<<endl;
   for(HFRecHitCollection::const_iterator hfItr = (*hf).begin();
       hfItr != (*hf).end(); ++hfItr)
       {  
          DetId id = (hfItr)->detid();
 	GlobalPoint pos = geo->getPosition(hfItr->detid());
-	(*myout_hcal)<<id.subdetId()<<" "<<(*hfItr).energy()<<" "<<pos.phi()<<" "<<pos.eta()<<endl;    
+	(*myout_hcal)<<id.subdetId()<<" "<<(*hfItr).energy()<<" "<<pos.phi()
+	<<" "<<pos.eta()<<" "<<iEvent.id().event()<<endl;    
 
       }
     } catch (std::exception& iEvent) { // can't find it!
@@ -763,27 +764,9 @@ GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     }
 //  }
 
-// Load CaloTowers
-//  Handle<CaloTowerCollection> calotowers;
-//  iEvent.getByType(calotowers);
-//  int idx = 0;
-//  for (; idx < calotowers->size (); idx++) {
-//    const CaloTower* cal = &((*calotowers) [idx]);
-
-//           cout<<" Et = "<<cal->et()
-//               <<" Number of constituents "<< cal->constituentsSize()
-//               <<" eta = " << cal->eta()
-//               <<" phi = " << cal->phi()
-//               <<" emE = " << cal->emEnergy()
-//               <<" emEt = " << cal->emEt()
-//               <<" detid = " << cal->id().rawId()
-//               <<" hadEt = " << cal->hadEt() << endl;
-//   }
-// Load tracks
-//   cout<<" Fill NumPart "<<NumPart<<endl;
-
 // Load Tracks
-   
+
+   cout<<" Event is ready "<<endl;
    
    myTree->Fill();
    
