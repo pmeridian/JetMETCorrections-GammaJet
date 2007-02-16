@@ -1,5 +1,26 @@
 // user include files
-#include "JetMETCorrections/GammaJet/interface/GammaJetAnalysis.h" 
+#include "GammaJetAnalysis.h" 
+
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/Event.h" 
+/* #include "FWCore/Framework/interface/MakerMacros.h" */
+#include "FWCore/Framework/interface/ESHandle.h" 
+#include "FWCore/Framework/interface/EventSetup.h" 
+
+#include "DataFormats/Common/interface/Ref.h"
+#include "DataFormats/DetId/interface/DetId.h" 
+
+#include "Geometry/Records/interface/IdealGeometryRecord.h" 
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h" 
+#include "Geometry/Vector/interface/GlobalPoint.h" 
+#include "DataFormats/CaloTowers/interface/CaloTowerCollection.h" 
+#include "DataFormats/CaloTowers/interface/CaloTowerDetId.h" 
+#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h" 
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h" 
+#include "DataFormats/JetReco/interface/CaloJetCollection.h" 
+#include "DataFormats/JetReco/interface/CaloJet.h" 
+
 
 #include "DataFormats/JetReco/interface/GenJet.h"
 #include "DataFormats/JetReco/interface/GenJetfwd.h"
@@ -11,6 +32,9 @@
 
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 #include "DataFormats/Common/interface/Provenance.h"
+
+#include "TFile.h"
+#include "TTree.h"
 
 
 using namespace std;

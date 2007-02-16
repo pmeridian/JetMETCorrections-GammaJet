@@ -7,34 +7,29 @@
 #include <map>
 
 // user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
+// #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+/* #include "FWCore/Framework/interface/Event.h" */
+/* #include "FWCore/Framework/interface/MakerMacros.h" */
+/* #include "FWCore/Framework/interface/ESHandle.h" */
+/* #include "FWCore/Framework/interface/EventSetup.h" */
+/* #include "FWCore/ParameterSet/interface/ParameterSet.h" */
 
-#include "DataFormats/Common/interface/Ref.h"
-#include "DataFormats/DetId/interface/DetId.h"
+/* #include "DataFormats/Common/interface/Ref.h" */
+/* #include "DataFormats/DetId/interface/DetId.h" */
 
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
-#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "Geometry/Vector/interface/GlobalPoint.h"
-#include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
-#include "DataFormats/CaloTowers/interface/CaloTowerDetId.h"
-#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
-#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
-#include "DataFormats/JetReco/interface/CaloJetCollection.h"
-#include "DataFormats/JetReco/interface/CaloJet.h"
-#include "CLHEP/Vector/LorentzVector.h"
+/* #include "Geometry/Records/interface/IdealGeometryRecord.h" */
+/* #include "Geometry/CaloGeometry/interface/CaloGeometry.h" */
+/* #include "Geometry/Vector/interface/GlobalPoint.h" */
+/* #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h" */
+/* #include "DataFormats/CaloTowers/interface/CaloTowerDetId.h" */
+/* #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h" */
+/* #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h" */
+/* #include "DataFormats/JetReco/interface/CaloJetCollection.h" */
+/* #include "DataFormats/JetReco/interface/CaloJet.h" */
 
-#include "TFile.h"
-#include "TTree.h"
-#include <iostream>
-#include <iomanip> 
 #include <fstream>
-
 
 using namespace std;
 
@@ -43,6 +38,10 @@ namespace edm {
   class Event;
   class EventSetup;
 }
+
+class TFile;
+class TTree;
+class CaloGeometry;
 
 //
 // class decleration
