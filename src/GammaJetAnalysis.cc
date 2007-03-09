@@ -13,7 +13,7 @@
 
 #include "Geometry/Records/interface/IdealGeometryRecord.h" 
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h" 
-#include "Geometry/Vector/interface/GlobalPoint.h" 
+#include "DataFormats/GeometryVector/interface/GlobalPoint.h" 
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h" 
 #include "DataFormats/CaloTowers/interface/CaloTowerDetId.h" 
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h" 
@@ -31,7 +31,7 @@
 #include "DataFormats/EgammaReco/interface/ClusterShape.h"
 
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
-#include "DataFormats/Common/interface/Provenance.h"
+#include "DataFormats/Provenance/interface/Provenance.h"
 
 #include "TFile.h"
 #include "TTree.h"
