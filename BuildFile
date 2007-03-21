@@ -1,5 +1,5 @@
 <use name=root>
-<use name=clhep>
+<use name=hepmc>
 <use name=boost>
 <use name=FWCore/Framework>
 <use name=Foundation/PluginManager>
@@ -57,6 +57,6 @@
    <use name=RecoEcal/EgammaCoreTools>
    <use name=JetMETCorrections/Objects>
    <use name=pythia6_227>
-   <use name=clhep>
+   <use name=hepmc>
    <use name=root>
 </export>
