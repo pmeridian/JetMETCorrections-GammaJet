@@ -245,10 +245,10 @@ GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
          //
          HepMC::GenEvent::vertex_const_iterator Vtx = Evt->vertices_begin() ;
 
-         std::cout<<" ParticleId 7/8= "<<Evt->particle(7)->pdg_id()<<" "<<
-                                         Evt->particle(8)->pdg_id()<<std::endl;
-         std::cout<<" ParticleId 7/8= "<<Evt->particle(7)->momentum().perp()<<" "<<
-                                         Evt->particle(8)->momentum().perp()<<std::endl;
+//         std::cout<<" ParticleId 7/8= "<<Evt->particle(7)->pdg_id()<<" "<<
+//                                         Evt->particle(8)->pdg_id()<<std::endl;
+//         std::cout<<" ParticleId 7/8= "<<Evt->particle(7)->momentum().perp()<<" "<<
+//                                         Evt->particle(8)->momentum().perp()<<std::endl;
 
 	 
          for (HepMC::GenEvent::particle_const_iterator
@@ -274,16 +274,6 @@ GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 		
 		theGenPart.push_back(*Part);
 		
-		if((*Part)->production_vertex()) {
-		   cout<<" Mother "<<(*Part)->mother()->pdg_id()<<endl;
-		 } else { cout<<" There is not mother "<<endl;
-		 }  
-		if((*Part)->mother()->production_vertex()) {
-		   cout<<" GrandMother "<<(*Part)->mother()->mother()->pdg_id()<<endl;
-		} else
-		{
-		    cout<<" There is not grandmother "<<endl;  
-		}   
             }
             else
             {
@@ -323,29 +313,36 @@ GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     
     if((*Part)->production_vertex())
     {
-        if(theGenPartPair.find((*Part)->mother()) != theGenPartPair.end() ) 
-	               motherline1 = (*theGenPartPair.find((*Part)->mother())).second;
-	if(theGenPartPair.find((*Part)->secondMother()) != theGenPartPair.end()) 
+
+        
+        if(theGenPartPair.find(*((*Part)->production_vertex()->particles_in_const_begin())) != theGenPartPair.end() ) 
+	               motherline1 = (*theGenPartPair.find(*((*Part)->production_vertex()->particles_in_const_begin())) ).second;
+        HepMC::GenVertex::particles_in_const_iterator inend = (*Part)->production_vertex()->particles_in_const_end();
+        inend--;
+	if(theGenPartPair.find( *(inend) ) != theGenPartPair.end()) 
 	{
-	   motherline2 = (*theGenPartPair.find((*Part)->secondMother())).second;
+	   motherline2 = (*theGenPartPair.find(  *(inend) )).second;
 	} else  motherline2 = 0;
 	
-//	vx = (*Part)->production_vertex()->position().x();
-//	vy = (*Part)->production_vertex()->position().y();
-//	vy = (*Part)->production_vertex()->position().z();
-//	vt = (*Part)->production_vertex()->position().t();
+	vx = (*Part)->production_vertex()->position().x();
+	vy = (*Part)->production_vertex()->position().y();
+	vy = (*Part)->production_vertex()->position().z();
+	vt = (*Part)->production_vertex()->position().t();
 
-	vx = (*Part)->creationVertex().x();
-	vy = (*Part)->creationVertex().y();
-	vy = (*Part)->creationVertex().z();
-	vt = (*Part)->creationVertex().t();
+//	vx = (*Part)->creationVertex().x();
+//	vy = (*Part)->creationVertex().y();
+//	vy = (*Part)->creationVertex().z();
+//	vt = (*Part)->creationVertex().t();
 	
 	
     } 
     if((*Part)->end_vertex())
     {
-         if(theGenPartPair.find((*Part)->beginDaughters()) != theGenPartPair.end()) dauthline1 = (*theGenPartPair.find((*Part)->beginDaughters())).second;
-	 if(theGenPartPair.find((*Part)->endDaughters()-1) != theGenPartPair.end()) dauthline2 = (*theGenPartPair.find((*Part)->endDaughters()-1)).second;
+         if(theGenPartPair.find(*((*Part)->end_vertex()->particles_out_const_begin())) != theGenPartPair.end()) dauthline1 = (*theGenPartPair.find(*((*Part)->end_vertex()->particles_out_const_begin()))).second;
+
+         HepMC::GenVertex::particles_in_const_iterator inend = (*Part)->end_vertex()->particles_out_const_end();
+         inend--; 
+	 if(theGenPartPair.find(*(inend)) != theGenPartPair.end()) dauthline2 = (*theGenPartPair.find(*(inend))).second;
     }
     
     (*myout_part)<<ihep<<" "<<(*Part)->status()<<" "<<(*Part)->pdg_id()
@@ -375,43 +372,6 @@ GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
      } 
   }
      
-  int ntype=0;
-  for(vector<HepMC::GenParticle*>::const_iterator Part = theGenPart.begin(); Part != theGenPart.end(); Part++)
-  {
-//    cout<<"Particle "<<(*Part)->pdg_id()<<endl;
-//    if( (*Part)->production_vertex() ) cout<<"Mother "<<(*Part)->mother()->pdg_id()<<endl;
-//    if( (*Part)->mother()->production_vertex() ) cout<<"Mother "<<(*Part)->mother()->mother()->pdg_id()<<endl;
-
-        if( !(*Part)->production_vertex() ) 
-	{
-	   ntype = 1;
-	   continue;
-	}   
-
-	if( (*Part)->mother()->pdg_id() == 223 || (*Part)->mother()->mother()->pdg_id() == 223 ) 
-	{
-		 ntype = 5;
-        }
-        if( (*Part)->mother()->pdg_id() == 221 || (*Part)->mother()->mother()->pdg_id() == 221 ) 
-	{
-		 ntype = 4;
-        }
-        if( (*Part)->mother()->pdg_id() == 111 )
-	{
-		
-	   if ((*Part)->mother()->mother()->pdg_id() != 221 && (*Part)->mother()->mother()->pdg_id() != 223 ) 
-	   {
-		 ntype = 3;
-           }
-        }
-	if( (*Part)->mother()->pdg_id() != 111 && (*Part)->mother()->pdg_id() != 221 	
-	                         && (*Part)->mother()->pdg_id() != 223) 
-        {
-				  ntype = 2;
-	}
-  }
-//  (*myout_part)<<endl;
-//  (*myout_part)<<theGenPart.size()<<endl; 
 // Load Jets Calo and Gen
 
      cout<<" Reading gen particles finished "<<endl; 
