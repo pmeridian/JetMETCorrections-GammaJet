@@ -32,7 +32,8 @@
 
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 #include "DataFormats/Provenance/interface/Provenance.h"
-
+#include "HepMC/GenParticle.h"
+#include "HepMC/SimpleVector.h"
 #include "TFile.h"
 #include "TTree.h"
 
@@ -254,8 +255,7 @@ GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
          for (HepMC::GenEvent::particle_const_iterator
             Part = Evt->particles_begin() ; Part!=Evt->particles_end(); Part++ )
          {
-            HepLorentzVector Mom = (*Part)->momentum() ;
-            double Eta = -log(tan(Mom.theta()/2.));
+            double Eta = -log(tan(((*Part)->momentum()).theta()/2.));
 
          if ( EvtHandles[i].provenance()->moduleLabel() == "VtxSmeared" )
             {
@@ -270,7 +270,7 @@ GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
                 if( (*Part)->status()!=1 ) continue;
                 if ( (*Part)->pdg_id()!=22 ) continue;
 		if(fabs(Eta) > 2.8 ) continue;
-		if(Mom.perp() <5. ) continue;
+		if(((*Part)->momentum()).perp() <5. ) continue;
 		
 		theGenPart.push_back(*Part);
 		
