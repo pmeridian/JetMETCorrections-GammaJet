@@ -31,9 +31,10 @@
 #include "DataFormats/EgammaReco/interface/ClusterShape.h"
 
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
-#include "DataFormats/Provenance/interface/Provenance.h"
-#include "HepMC/GenParticle.h"
-#include "HepMC/SimpleVector.h"
+
+// JoCa
+#include "DataFormats/TrackReco/interface/Track.h"
+
 #include "TFile.h"
 #include "TTree.h"
 
@@ -125,45 +126,62 @@ void GammaJetAnalysis::beginJob( const edm::EventSetup& iSetup)
    NumPart = 0;
 // Jet block
    myTree->Branch("NumRecoJets", &NumRecoJets, "NumRecoJets/I");   
-   myTree->Branch("JetRecoEt",  JetRecoEt, "JetRecoEt[10]/F");
-   myTree->Branch("JetRecoEta",  JetRecoEta, "JetRecoEta[10]/F");
-   myTree->Branch("JetRecoPhi",  JetRecoPhi, "JetRecoPhi[10]/F");
-   myTree->Branch("JetRecoType",  JetRecoType, "JetRecoType[10]/F");
+   myTree->Branch("JetRecoEt",  JetRecoEt, "JetRecoEt[NumRecoJets]/F");
+   myTree->Branch("JetRecoEta",  JetRecoEta, "JetRecoEta[NumRecoJets]/F");
+   myTree->Branch("JetRecoPhi",  JetRecoPhi, "JetRecoPhi[NumRecoJets]/F");
+   myTree->Branch("JetRecoType",  JetRecoType, "JetRecoType[NumRecoJets]/F");
    
    myTree->Branch("NumGenJets", &NumGenJets, "NumGenJets/I");   
-   myTree->Branch("JetGenEt",  JetGenEt, "JetGenEt[10]/F");
-   myTree->Branch("JetGenEta",  JetGenEta, "JetGenEta[10]/F");
-   myTree->Branch("JetGenPhi",  JetGenPhi, "JetGenPhi[10]/F");
-   myTree->Branch("JetGenType",  JetGenType, "JetGenType[10]/F");
+   myTree->Branch("JetGenEt",  JetGenEt, "JetGenEt[NumGenJets]/F");
+   myTree->Branch("JetGenEta",  JetGenEta, "JetGenEta[NumGenJets]/F");
+   myTree->Branch("JetGenPhi",  JetGenPhi, "JetGenPhi[NumGenJets]/F");
+   myTree->Branch("JetGenType",  JetGenType, "JetGenType[NumGenJets]/F");
    
 // Gamma block for ECAL isolated gammas
    myTree->Branch("NumRecoGamma", &NumRecoGamma, "NumRecoGamma/I");
-   myTree->Branch("EcalClusDet", &EcalClusDet, "EcalClusDet[20]/I");
-   myTree->Branch("GammaRecoEt",  GammaRecoEt, "GammaRecoEt[20]/F");
-   myTree->Branch("GammaRecoEta",  GammaRecoEta, "GammaRecoEta[20]/F");
-   myTree->Branch("GammaRecoPhi",  GammaRecoPhi, "GammaRecoPhi[20]/F");
-   myTree->Branch("GammaIsoEcal",  GammaIsoEcal, "GammaIsoEcal[9][20]/F");
+   myTree->Branch("EcalClusDet", &EcalClusDet, "EcalClusDet[NumRecoGamma]/I");
+   myTree->Branch("GammaRecoEt",  GammaRecoEt, "GammaRecoEt[NumRecoGamma]/F");
+   myTree->Branch("GammaRecoEta",  GammaRecoEta, "GammaRecoEta[NumRecoGamma]/F");
+   myTree->Branch("GammaRecoPhi",  GammaRecoPhi, "GammaRecoPhi[NumRecoGamma]/F");
+   myTree->Branch("GammaIsoEcal",  GammaIsoEcal, "GammaIsoEcal[9][NumRecoGamma]/F");
 
 // Tracks block
    myTree->Branch("NumRecoTrack", &NumRecoTrack, "NumRecoTrack/I");
-   myTree->Branch("TrackRecoEt",  TrackRecoEt, "TrackRecoEt[200]/F");
-   myTree->Branch("TrackRecoEta",  TrackRecoEta, "TrackRecoEta[200]/F");
-   myTree->Branch("TrackRecoPhi",  TrackRecoPhi, "TrackRecoPhi[200]/F");
+   myTree->Branch("TrackRecoEt",  TrackRecoEt, "TrackRecoEt[NumRecoTrack]/F");
+   myTree->Branch("TrackRecoEta",  TrackRecoEta, "TrackRecoEta[NumRecoTrack]/F");
+   myTree->Branch("TrackRecoPhi",  TrackRecoPhi, "TrackRecoPhi[NumRecoTrack]/F");
 
 // Particle block
    myTree->Branch("NumPart", &NumPart, "NumPart/I"); 
-   myTree->Branch("Status",  Status, "Status[4000]/I");     
-   myTree->Branch("Code",  Code, "Code[4000]/I");
-   myTree->Branch("Mother1",  Mother1, "Mother1[4000]/I");
-   myTree->Branch("partpx",  partpx, "partpx[4000]/F");
-   myTree->Branch("partpy",  partpy, "partpy[4000]/F");
-   myTree->Branch("partpz",  partpz, "partpz[4000]/F");
-   myTree->Branch("parte",  parte, "parte[4000]/F");
-   myTree->Branch("partm",  partm, "partm[4000]/F");
-   myTree->Branch("partvx",  partvx, "partvx[4000]/F");
-   myTree->Branch("partvy",  partvy, "partvy[4000]/F");
-   myTree->Branch("partvz",  partvz, "partvz[4000]/F");
-   myTree->Branch("partvt",  partvt, "partvt[4000]/F");
+   myTree->Branch("Status",  Status, "Status[NumPart]/I");     
+   myTree->Branch("Code",  Code, "Code[NumPart]/I");
+   myTree->Branch("Mother1",  Mother1, "Mother1[NumPart]/I");
+   myTree->Branch("partpx",  partpx, "partpx[NumPart]/F");
+   myTree->Branch("partpy",  partpy, "partpy[NumPart]/F");
+   myTree->Branch("partpz",  partpz, "partpz[NumPart]/F");
+   myTree->Branch("parte",  parte, "parte[NumPart]/F");
+   myTree->Branch("partm",  partm, "partm[NumPart]/F");
+   myTree->Branch("partvx",  partvx, "partvx[NumPart]/F");
+   myTree->Branch("partvy",  partvy, "partvy[NumPart]/F");
+   myTree->Branch("partvz",  partvz, "partvz[NumPart]/F");
+   myTree->Branch("partvt",  partvt, "partvt[NumPart]/F");
+
+
+// JoCa: HCAL Tower block
+   myTree->Branch("HCALNum",    &HCALNum,    "HCALNum/I");
+   myTree->Branch("HCALSubDet",  HCALSubDet, "HCALSubDet[HCALNum]/I");
+   myTree->Branch("HCALEnergy",  HCALEnergy, "HCALEnergy[HCALNum]/F");
+   myTree->Branch("HCALEta",     HCALEta,    "HCALEta[HCALNum]/F");
+   myTree->Branch("HCALPhi",     HCALPhi,    "HCALPhi[HCALNum]/F");
+
+// JoCa: ECAL Crystals block
+   myTree->Branch("ECALNum",    &ECALNum,    "ECALNum/I");
+   myTree->Branch("ECALSubDet",  ECALSubDet, "ECALSubDet[ECALNum]/I");
+   myTree->Branch("ECALEnergy",  ECALEnergy, "ECALEnergy[ECALNum]/F");
+   myTree->Branch("ECALEta",     ECALEta,    "ECALEta[ECALNum]/F");
+   myTree->Branch("ECALPhi",     ECALPhi,    "ECALPhi[HCALNum]/F");
+
+
 // end of tree declaration
 
    edm::ESHandle<CaloGeometry> pG;
@@ -206,14 +224,6 @@ void
 GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   using namespace edm;
-  std::vector<Provenance const*> theProvenance;
-  iEvent.getAllProvenance(theProvenance);
-  for( std::vector<Provenance const*>::const_iterator ip = theProvenance.begin();
-                                                      ip != theProvenance.end(); ip++)
-  {
-     cout<<" Print all module/label names "<<(**ip).moduleName()<<" "<<(**ip).moduleLabel()<<
-     " "<<(**ip).productInstanceName()<<endl;
-  }
 // Load generator information
 // write HEPEVT block into file
    run = iEvent.id().run();
@@ -471,6 +481,9 @@ GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   
     std::vector<edm::InputTag>::const_iterator i;
     vector<CaloRecHit> theRecHits;
+
+    int iECAL = 0; // JoCa
+
       
     for (i=ecalLabels_.begin(); i!=ecalLabels_.end(); i++) {
     try {
@@ -488,6 +501,15 @@ GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
 	 if( (*recHit).energy()> ecut[recHit->detid().subdetId()-1][0] ) (*myout_ecal)<<recHit->detid().subdetId()<<" "<<(*recHit).energy()<<" "<<pos.phi()<<" "<<pos.eta()
 	 <<" "<<iEvent.id().event()<<endl;
+
+
+//      // JoCa
+        ECALSubDet[iECAL] = recHit->detid().subdetId();
+        ECALEnergy[iECAL] = (*recHit).energy();
+        ECALEta[iECAL] = pos.eta();
+        ECALPhi[iECAL] = pos.phi();
+        iECAL++;
+
 	     
        } 
       
@@ -496,8 +518,15 @@ GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     }
     }
 
+    ECALNum = iECAL; // JoCa
+
+
 //  cout<<" Start to get hbhe "<<endl;
 // Hcal Barrel and endcap for isolation  
+
+    int iHCAL = 0; // JoCa
+
+
     try {
       edm::Handle<HBHERecHitCollection> hbhe;
       iEvent.getByLabel(hbheLabel_,hbhe);
@@ -512,13 +541,23 @@ GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	(*myout_hcal)<<id.subdetId()<<" "<<(*hbheItr).energy()<<" "<<pos.phi()<<
 	" "<<pos.eta()<<" "<<iEvent.id().event()<<endl;    
         theRecHits.push_back(*hbheItr);
-	
+
+//      // JoCa
+        HCALSubDet[iHCAL] = id.subdetId();
+        HCALEnergy[iHCAL] = (*hbheItr).energy();
+        HCALEta[iHCAL] = pos.eta();
+        HCALPhi[iHCAL] = pos.phi();
+        iHCAL++;
+
       }
     } catch (std::exception& iEvent) { // can't find it!
       cout<<" Exception in hbhe "<<endl;
       if (!allowMissingInputs_) throw iEvent;
     }
 //  }
+
+    
+    HCALNum = iHCAL; // JoCa
 
  
  for(int i = 0; i<9; i++)
@@ -749,6 +788,22 @@ GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 //  }
 
 // Load Tracks
+// JoCa
+    edm::Handle<reco::TrackCollection> tracks;
+    iEvent.getByLabel("ctfWithMaterialTracks", tracks);
+
+    reco::TrackCollection::const_iterator trk;
+    int iTracks = 0;
+    for ( trk = tracks->begin(); trk != tracks->end(); ++trk){
+      TrackRecoEt[iTracks] = trk->pt();
+      TrackRecoEta[iTracks] = trk->eta();
+      TrackRecoPhi[iTracks] = trk->phi();
+      iTracks++;
+    }
+    NumRecoTrack = iTracks;
+
+
+
 
    cout<<" Event is ready "<<endl;
    

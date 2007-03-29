@@ -113,7 +113,7 @@ class GammaJetAnalysis : public edm::EDAnalyzer {
       int run,event;
       float JetRecoEt[10],JetRecoEta[10],JetRecoPhi[10],JetRecoType[10];
       float JetGenEt[10],JetGenEta[10],JetGenPhi[10],JetGenType[10];
-      float TrackRecoEt[10],TrackRecoEta[10],TrackRecoPhi[10];
+      float TrackRecoEt[5000],TrackRecoEta[5000],TrackRecoPhi[5000];
       int EcalClusDet[20];
       float GammaRecoEt[20],GammaRecoEta[20],GammaRecoPhi[20],GammaIsoEcal[9][20],GammaIsoHcal[9][20];
       float HcalDet[8000],HcalRecoEt[8000],HcalRecoEta[8000],HcalRecoPhi[8000];
@@ -122,6 +122,18 @@ class GammaJetAnalysis : public edm::EDAnalyzer {
       float partvy[4000],partvz[4000],partvt[4000];
       float risol[3];
       float ecut[3][3];
+
+      // JoCa HCAL Towers
+      int HCALNum;
+      int HCALSubDet[10000];
+      float HCALEnergy[10000], HCALEta[10000], HCALPhi[10000];
+
+      // JoCa ECAL Crystals
+      int ECALNum;
+      int ECALSubDet[10000];
+      float ECALEnergy[10000], ECALEta[10000], ECALPhi[10000];
+
+
       
 // Calo geometry
   const CaloGeometry* geo;
