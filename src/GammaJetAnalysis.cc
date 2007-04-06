@@ -252,22 +252,12 @@ GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
          const HepMC::GenEvent* Evt = EvtHandles[i]->GetEvent() ;
 
-         // take only 1st vertex for now - it's been tested only of PGuns...
-         //
-         HepMC::GenEvent::vertex_const_iterator Vtx = Evt->vertices_begin() ;
-
-//         std::cout<<" ParticleId 7/8= "<<Evt->particle(7)->pdg_id()<<" "<<
-//                                         Evt->particle(8)->pdg_id()<<std::endl;
-//         std::cout<<" ParticleId 7/8= "<<Evt->particle(7)->momentum().perp()<<" "<<
-//                                         Evt->particle(8)->momentum().perp()<<std::endl;
-
-	 
          for (HepMC::GenEvent::particle_const_iterator
             Part = Evt->particles_begin() ; Part!=Evt->particles_end(); Part++ )
          {
             double Eta = -log(tan(((*Part)->momentum()).theta()/2.));
 
-         if ( EvtHandles[i].provenance()->moduleLabel() == "VtxSmeared" )
+         if ( EvtHandles[i].provenance()->moduleLabel() == "source" )
             {
 //	     cout<<" particle "<<(*Part)->pdg_id()<<" "<<(*Part)->status()<<" "<<Eta<<" "<<Mom.px()<<endl;
 	     
@@ -284,7 +274,7 @@ GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 		
 		theGenPart.push_back(*Part);
 		
-            }
+           }
             else
             {
 	     cout<<" Label "<<EvtHandles[i].provenance()->moduleLabel()<<endl;
