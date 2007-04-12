@@ -28,7 +28,7 @@
 <use name=DataFormats/Math>
 <use name=RecoEcal/EgammaCoreTools>
 <use name=JetMETCorrections/Objects>
-<flags SEAL_PLUGIN_NAME="JetMETCorrectionsGammaJet">
+<flags EDM_PLUGIN=1>
 <export>
    <lib name=JetMETCorrectionsGammaJet>
    <use name=FWCore/Framework>
