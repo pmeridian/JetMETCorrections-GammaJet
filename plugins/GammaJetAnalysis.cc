@@ -1,5 +1,5 @@
 // user include files
-#include "GammaJetAnalysis.h" 
+#include "JetMETCorrections/GammaJet/plugins/GammaJetAnalysis.h" 
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -801,3 +801,8 @@ GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
    
 } // analyze method
 } // namespace cms
+
+#include "FWCore/PluginManager/interface/ModuleDef.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+
+DEFINE_FWK_MODULE(cms::GammaJetAnalysis);

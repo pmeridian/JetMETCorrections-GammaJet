@@ -20,7 +20,6 @@
 <use name=Geometry/CaloEventSetup>
 <use name=Geometry/EcalPreshowerAlgo>
 <use name=JetMETCorrections/Objects>
-<flags EDM_PLUGIN=1>
 <export>
    <lib name=JetMETCorrectionsGammaJet>
    <use name=JetMETCorrections/Objects>
