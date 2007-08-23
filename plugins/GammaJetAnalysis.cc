@@ -23,18 +23,19 @@
 
 
 #include "DataFormats/JetReco/interface/GenJet.h"
-#include "DataFormats/JetReco/interface/GenJetfwd.h"
-
+/* #include "DataFormats/JetReco/interface/GenJetfwd.h" */
+#include "DataFormats/JetReco/interface/GenJetCollection.h"
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
+#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "DataFormats/EgammaReco/interface/ClusterShape.h"
 
 #include "SimDataFormats/HepMCProduct/interface/HepMCProduct.h"
 
 // JoCa
 #include "DataFormats/TrackReco/interface/Track.h"
-
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "TFile.h"
 #include "TTree.h"
 
