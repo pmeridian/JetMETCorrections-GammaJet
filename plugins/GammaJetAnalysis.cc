@@ -386,39 +386,41 @@ GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     NumRecoJets = 0;
     
     for (ic=mInputCalo.begin(); ic!=mInputCalo.end(); ic++) {
-     try {
-       
-       edm::Handle<reco::CaloJetCollection> jets;
-       iEvent.getByLabel(*ic, jets);
-       reco::CaloJetCollection::const_iterator jet = jets->begin ();
-       cout<<" Size of jets "<<jets->size()<<endl;
+      edm::Handle<reco::CaloJetCollection> jets;
+      iEvent.getByLabel(*ic, jets);
+      if (!jets.isValid()) {
+	// can't find it!
+	if (!allowMissingInputs_) {
+	  *jets;  // will throw the proper exception
+	}
+      } else {
+	reco::CaloJetCollection::const_iterator jet = jets->begin ();
+	cout<<" Size of jets "<<jets->size()<<endl;
         jettype++;
-       
         
        
-       if(jets->size() > 0 )
-       {
-         int ij = 0;
-         for (; jet != jets->end (); jet++) 
-         {
-//            cout<<*ic<<" "<<" et "<<(*jet).et()<<" "<<(*jet).eta()<<" "<<(*jet).phi()<<endl;
-	    ij++;
-	    if(ij<4) (*myout_jet)<<jettype<<" "<<reco<<" "<<ij<<" "<<(*jet).et()<<" "<<(*jet).eta()<<" "<<(*jet).phi()
-	    <<" "<<iEvent.id().event()<<endl;
-	    jetexist = ij;
-	    if( NumRecoJets < 8 )
-	    {
-	     JetRecoEt[NumRecoJets] = (*jet).et();
-	     JetRecoEta[NumRecoJets] = (*jet).eta();
-	     JetRecoPhi[NumRecoJets] = (*jet).phi();
-	     JetRecoType[NumRecoJets] = jettype;
-	     NumRecoJets++;
-	    }
-         }
-       }
-     } catch (std::exception& e) { // can't find it!
-       if (!allowMissingInputs_) throw e;
-     }
+	if(jets->size() > 0 )
+	  {
+	    int ij = 0;
+	    for (; jet != jets->end (); jet++) 
+	      {
+		//            cout<<*ic<<" "<<" et "<<(*jet).et()<<" "<<(*jet).eta()<<" "<<(*jet).phi()<<endl;
+		ij++;
+		if(ij<4) (*myout_jet)<<jettype<<" "<<reco<<" "<<ij<<" "<<(*jet).et()<<" "<<(*jet).eta()<<" "<<(*jet).phi()
+				     <<" "<<iEvent.id().event()<<endl;
+		jetexist = ij;
+		if( NumRecoJets < 8 )
+		  {
+		    JetRecoEt[NumRecoJets] = (*jet).et();
+		    JetRecoEta[NumRecoJets] = (*jet).eta();
+		    JetRecoPhi[NumRecoJets] = (*jet).phi();
+		    JetRecoType[NumRecoJets] = jettype;
+		    NumRecoJets++;
+		  }
+	      }
+	  }
+      }
+
    }
      if( jetexist < 0 ) (*myout_jet)<<jetexist<<" "<<reco<<" "<<etlost
                          <<" "<<etlost<<" "<<etlost
@@ -429,40 +431,41 @@ GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     NumGenJets = 0;
     
     for (ic=mInputGen.begin(); ic!=mInputGen.end(); ic++) {
-     try {
-  
-       edm::Handle<reco::GenJetCollection> jets;
-       iEvent.getByLabel(*ic, jets);
-       reco::GenJetCollection::const_iterator jet = jets->begin ();
-//       cout<<" Size of jets "<<jets->size()<<endl;
-       jettype++;
+      edm::Handle<reco::GenJetCollection> jets;
+      iEvent.getByLabel(*ic, jets);
+      if (!jets.isValid()) {
+	// can't find it!
+	if (!allowMissingInputs_) {
+	  *jets;  // will throw the proper exception
+	}
+      } else {
+	reco::GenJetCollection::const_iterator jet = jets->begin ();
+	//       cout<<" Size of jets "<<jets->size()<<endl;
+	jettype++;
+	
        
-       
-       if(jets->size() > 0 )
-       {
-          int ij = 0;
-         for (; jet != jets->end (); jet++) 
-         {
-	     ij++;
-//            cout<<*ic<<" "<<" et "<<(*jet).et()<<" "<<(*jet).eta()<<" "<<(*jet).phi()<<endl;
-	    if(ij<4) (*myout_jet)<<jettype<<" "<<reco<<" "<<ij<<" "<<(*jet).et()<<" "<<(*jet).eta()<<" "<<(*jet).phi()
-	    <<" "<<iEvent.id().event()<<endl;
-	    jetexist = jettype;	
-	    if( NumGenJets < 8 )
-	    {    
-	      JetGenEt[NumGenJets] = (*jet).et();
-	      JetGenEta[NumGenJets] = (*jet).eta();
-	      JetGenPhi[NumGenJets] = (*jet).phi();
-	      JetGenType[NumGenJets] = jettype;
-	      NumGenJets++;
-	    }
-
-         }
-       }
-     } catch (std::exception& e) { // can't find it!
-       if (!allowMissingInputs_) throw e;
-     }
-   }
+	if(jets->size() > 0 )
+	  {
+	    int ij = 0;
+	    for (; jet != jets->end (); jet++) 
+	      {
+		ij++;
+		//            cout<<*ic<<" "<<" et "<<(*jet).et()<<" "<<(*jet).eta()<<" "<<(*jet).phi()<<endl;
+		if(ij<4) (*myout_jet)<<jettype<<" "<<reco<<" "<<ij<<" "<<(*jet).et()<<" "<<(*jet).eta()<<" "<<(*jet).phi()
+				     <<" "<<iEvent.id().event()<<endl;
+		jetexist = jettype;	
+		if( NumGenJets < 8 )
+		  {    
+		    JetGenEt[NumGenJets] = (*jet).et();
+		    JetGenEta[NumGenJets] = (*jet).eta();
+		    JetGenPhi[NumGenJets] = (*jet).phi();
+		    JetGenType[NumGenJets] = jettype;
+		    NumGenJets++;
+		  }		
+	      }
+	  }
+      }
+    }
    
      if( jetexist < 0 ) (*myout_jet)<<jetexist<<" "<<reco<<" "<<etlost
                          <<" "<<etlost<<" "<<etlost
@@ -477,36 +480,34 @@ GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
       
     for (i=ecalLabels_.begin(); i!=ecalLabels_.end(); i++) {
-    try {
-      
       edm::Handle<EcalRecHitCollection> ec;
       iEvent.getByLabel(*i,ec);
-      
-       for(EcalRecHitCollection::const_iterator recHit = (*ec).begin();
-                                                recHit != (*ec).end(); ++recHit)
-       {
-// EcalBarrel = 1, EcalEndcap = 2
-
-	 GlobalPoint pos = geo->getPosition(recHit->detid());
-         theRecHits.push_back(*recHit);
-
-	 if( (*recHit).energy()> ecut[recHit->detid().subdetId()-1][0] ) (*myout_ecal)<<recHit->detid().subdetId()<<" "<<(*recHit).energy()<<" "<<pos.phi()<<" "<<pos.eta()
-	 <<" "<<iEvent.id().event()<<endl;
-
-
-//      // JoCa
-        ECALSubDet[iECAL] = recHit->detid().subdetId();
-        ECALEnergy[iECAL] = (*recHit).energy();
-        ECALEta[iECAL] = pos.eta();
-        ECALPhi[iECAL] = pos.phi();
-        iECAL++;
-
-	     
-       } 
-      
-    } catch (std::exception& e) { // can't find it!
-    if (!allowMissingInputs_) throw e;
-    }
+      if (!ec.isValid()) {
+	// can't find it!
+	if (!allowMissingInputs_) {
+	  *ec;  // will throw the proper exception
+	}
+      } else {
+	for(EcalRecHitCollection::const_iterator recHit = (*ec).begin();
+	    recHit != (*ec).end(); ++recHit)
+	  {
+	    // EcalBarrel = 1, EcalEndcap = 2
+	    
+	    GlobalPoint pos = geo->getPosition(recHit->detid());
+	    theRecHits.push_back(*recHit);
+	    
+	    if( (*recHit).energy()> ecut[recHit->detid().subdetId()-1][0] ) (*myout_ecal)<<recHit->detid().subdetId()<<" "<<(*recHit).energy()<<" "<<pos.phi()<<" "<<pos.eta()
+											 <<" "<<iEvent.id().event()<<endl;
+	    
+	    
+	    //      // JoCa
+	    ECALSubDet[iECAL] = recHit->detid().subdetId();
+	    ECALEnergy[iECAL] = (*recHit).energy();
+	    ECALEta[iECAL] = pos.eta();
+	    ECALPhi[iECAL] = pos.phi();
+	    iECAL++;	    	    
+	  }
+      }      
     }
 
     ECALNum = iECAL; // JoCa
@@ -516,35 +517,35 @@ GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 // Hcal Barrel and endcap for isolation  
 
     int iHCAL = 0; // JoCa
-
-
-    try {
-      edm::Handle<HBHERecHitCollection> hbhe;
-      iEvent.getByLabel(hbheLabel_,hbhe);
-      
-//      (*myout_hcal)<<(*hbhe).size()<<endl;
-  for(HBHERecHitCollection::const_iterator hbheItr = (*hbhe).begin();
-  
-      hbheItr != (*hbhe).end(); ++hbheItr)
-      {
-        DetId id = (hbheItr)->detid();
-	GlobalPoint pos = geo->getPosition(hbheItr->detid());
-	(*myout_hcal)<<id.subdetId()<<" "<<(*hbheItr).energy()<<" "<<pos.phi()<<
-	" "<<pos.eta()<<" "<<iEvent.id().event()<<endl;    
-        theRecHits.push_back(*hbheItr);
-
-//      // JoCa
-        HCALSubDet[iHCAL] = id.subdetId();
-        HCALEnergy[iHCAL] = (*hbheItr).energy();
-        HCALEta[iHCAL] = pos.eta();
-        HCALPhi[iHCAL] = pos.phi();
-        iHCAL++;
-
-      }
-    } catch (std::exception& iEvent) { // can't find it!
+    edm::Handle<HBHERecHitCollection> hbhe;
+    iEvent.getByLabel(hbheLabel_,hbhe);
+    if (!hbhe.isValid()) {
+      // can't find it!
       cout<<" Exception in hbhe "<<endl;
-      if (!allowMissingInputs_) throw iEvent;
+      if (!allowMissingInputs_) {
+	*hbhe;  // will throw the proper exception
+      }
+    } else {
+//      (*myout_hcal)<<(*hbhe).size()<<endl;
+      for(HBHERecHitCollection::const_iterator hbheItr = (*hbhe).begin();
+	  
+	  hbheItr != (*hbhe).end(); ++hbheItr)
+	{
+	  DetId id = (hbheItr)->detid();
+	  GlobalPoint pos = geo->getPosition(hbheItr->detid());
+	  (*myout_hcal)<<id.subdetId()<<" "<<(*hbheItr).energy()<<" "<<pos.phi()<<
+	    " "<<pos.eta()<<" "<<iEvent.id().event()<<endl;    
+	  theRecHits.push_back(*hbheItr);
+	  
+	  //      // JoCa
+	  HCALSubDet[iHCAL] = id.subdetId();
+	  HCALEnergy[iHCAL] = (*hbheItr).energy();
+	  HCALEta[iHCAL] = pos.eta();
+	  HCALPhi[iHCAL] = pos.phi();
+	  iHCAL++;	  
+	}
     }
+    
 //  }
 
     
@@ -560,12 +561,18 @@ GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
  jetexist = -100; 
  int barrel = 1;
  NumRecoGamma = 0;
- 
- try {
+
+ {
  int ij = 0;
-  // Get island super clusters after energy correction
-  Handle<reco::SuperClusterCollection> pCorrectedIslandBarrelSuperClusters;
-  iEvent.getByLabel(correctedIslandBarrelSuperClusterProducer_, correctedIslandBarrelSuperClusterCollection_, pCorrectedIslandBarrelSuperClusters);
+ // Get island super clusters after energy correction
+ Handle<reco::SuperClusterCollection> pCorrectedIslandBarrelSuperClusters;
+ iEvent.getByLabel(correctedIslandBarrelSuperClusterProducer_, correctedIslandBarrelSuperClusterCollection_, pCorrectedIslandBarrelSuperClusters);
+ if (!pCorrectedIslandBarrelSuperClusters.isValid()) {
+   // can't find it!
+   if (!allowMissingInputs_) {
+     *pCorrectedIslandBarrelSuperClusters;  // will throw the proper exception
+   }
+ } else {
   const reco::SuperClusterCollection* correctedIslandBarrelSuperClusters = pCorrectedIslandBarrelSuperClusters.product();
   // loop over the super clusters and fill the histogram
   for(reco::SuperClusterCollection::const_iterator aClus = correctedIslandBarrelSuperClusters->begin();
@@ -645,17 +652,21 @@ GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
        jetexist = ij;
     } //vet  
   } // number of superclusters
-  } catch (std::exception& e) { // can't find it!
-    if (!allowMissingInputs_) throw e;
-  }
-
+ }
+ }
   barrel = 2;
   
-  try {
+ {
   int ij = 0;
   // Get island super clusters after energy correction
   Handle<reco::SuperClusterCollection> pCorrectedIslandEndcapSuperClusters;
   iEvent.getByLabel(correctedIslandEndcapSuperClusterProducer_, correctedIslandEndcapSuperClusterCollection_, pCorrectedIslandEndcapSuperClusters);
+  if (!pCorrectedIslandEndcapSuperClusters.isValid()) {
+    // can't find it!
+    if (!allowMissingInputs_) {
+      *pCorrectedIslandEndcapSuperClusters;  // will throw the proper exception
+    }
+  } else {
   const reco::SuperClusterCollection* correctedIslandEndcapSuperClusters = pCorrectedIslandEndcapSuperClusters.product();
   
   // loop over the super clusters and fill the histogram
@@ -729,8 +740,7 @@ GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     } // vet							   
   } // superclusters
   // ----- hybrid 
-  } catch (std::exception& e) { // can't find it!
-    if (!allowMissingInputs_) throw e;
+  }
   }
     double ecluslost = -100.1;
     if(jetexist<0) (*myout_photon)<<jetexist<<" "<<barrel<<" "<<ecluslost<<" "<<ecluslost
@@ -739,10 +749,14 @@ GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 //  }
 //  if (!hoLabel_.empty()) {
 // Load HORecHits
-    try {
-      edm::Handle<HORecHitCollection> ho;
-      iEvent.getByLabel(hoLabel_,ho);
-      
+    edm::Handle<HORecHitCollection> ho;
+    iEvent.getByLabel(hoLabel_,ho);
+    if (!ho.isValid()) {
+      // can't find it!
+      if (!allowMissingInputs_) {
+	*ho;  // will throw the proper exception
+      }
+    } else {
 //      (*myout_hcal)<<(*ho).size()<<endl;
       
   for(HORecHitCollection::const_iterator hoItr = (*ho).begin();
@@ -754,28 +768,29 @@ GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	<<" "<<pos.eta()<<" "<<iEvent.id().event()<<endl;    
 
       }
-    } catch (std::exception& iEvent) { // can't find it!
-      if (!allowMissingInputs_) throw iEvent;
     }
     
 // Load HFRecHits
-    try {
-      edm::Handle<HFRecHitCollection> hf;
-      iEvent.getByLabel(hfLabel_,hf);
-      
-//      (*myout_hcal)<<(*hf).size()<<endl;
-  for(HFRecHitCollection::const_iterator hfItr = (*hf).begin();
-      hfItr != (*hf).end(); ++hfItr)
-      {  
-         DetId id = (hfItr)->detid();
-	GlobalPoint pos = geo->getPosition(hfItr->detid());
-	(*myout_hcal)<<id.subdetId()<<" "<<(*hfItr).energy()<<" "<<pos.phi()
-	<<" "<<pos.eta()<<" "<<iEvent.id().event()<<endl;    
-
+    edm::Handle<HFRecHitCollection> hf;
+    iEvent.getByLabel(hfLabel_,hf);
+    if (!hf.isValid()) {
+      // can't find it!
+      if (!allowMissingInputs_) {
+	*hf;  // will throw the proper exception
       }
-    } catch (std::exception& iEvent) { // can't find it!
-      if (!allowMissingInputs_) throw iEvent;
+    } else {
+      //      (*myout_hcal)<<(*hf).size()<<endl;
+      for(HFRecHitCollection::const_iterator hfItr = (*hf).begin();
+	  hfItr != (*hf).end(); ++hfItr)
+	{  
+	  DetId id = (hfItr)->detid();
+	  GlobalPoint pos = geo->getPosition(hfItr->detid());
+	  (*myout_hcal)<<id.subdetId()<<" "<<(*hfItr).energy()<<" "<<pos.phi()
+		       <<" "<<pos.eta()<<" "<<iEvent.id().event()<<endl;    
+	  
+	}
     }
+
 //  }
 
 // Load Tracks
