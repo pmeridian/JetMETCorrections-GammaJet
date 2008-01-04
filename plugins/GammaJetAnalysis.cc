@@ -240,9 +240,15 @@ GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   vector<HepMC::GenParticle*> theGenPartAll;
   map<HepMC::GenParticle*,int> theGenPartPair;
   
-  try {
-    vector< Handle< HepMCProduct > > EvtHandles ;
-    iEvent.getManyByType( EvtHandles ) ;
+  vector< Handle< HepMCProduct > > EvtHandles ;
+  iEvent.getManyByType( EvtHandles ) ;
+  if (EvtHandles.empty()) {
+    // can't find it!
+    if (!allowMissingInputs_){
+       throw edm::Exception(errors::ProductNotFound,"NoMatch")
+       << "getManyByType: no products found of specified type\n";
+    }
+  } else {
 //    cout<<" Size of HepMCProduct "<<EvtHandles.size()<<endl;
     
    for ( unsigned int i=0; i<EvtHandles.size(); i++ )
@@ -285,9 +291,6 @@ GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
       }
 
    }
-  
-  } catch (std::exception& e) { // can't find it!
-    if (!allowMissingInputs_) throw e;
   }
   
 //  cout<<" We filled theGenPart "<<endl;
