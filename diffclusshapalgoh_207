@@ -1,3 +1,8 @@
+Index: RecoEcal/EgammaCoreTools/interface/ClusterShapeAlgo.h
+===================================================================
+RCS file: /cvs_server/repositories/CMSSW/CMSSW/RecoEcal/EgammaCoreTools/interface/ClusterShapeAlgo.h,v
+retrieving revision 1.16
+diff -r1.16 ClusterShapeAlgo.h
 10c10
 <  * \version $Id: ClusterShapeAlgo.h,v 1.16 2007/08/07 12:13:30 rahatlou Exp $
 ---
