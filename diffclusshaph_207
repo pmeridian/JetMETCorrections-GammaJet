@@ -1,10 +1,5 @@
-Index: DataFormats/EgammaReco/interface/ClusterShape.h
-===================================================================
-RCS file: /cvs_server/repositories/CMSSW/CMSSW/DataFormats/EgammaReco/interface/ClusterShape.h,v
-retrieving revision 1.9
-diff -r1.9 ClusterShape.h
 11c11
-<  * \version $Id: ClusterShape.h,v 1.9 2008/03/04 00:10:10 ferriff Exp $
+<  * \version $Id: ClusterShape.h,v 1.10 2008/04/16 09:06:54 ferriff Exp $
 ---
 >  * \version $Id: ClusterShape.h,v 1.6 2006/11/13 18:02:05 futyand Exp $
 18a19
@@ -94,13 +89,11 @@ diff -r1.9 ClusterShape.h
 >     void set_eMaxId(DetId eMaxId)  {  eMaxId_ = eMaxId;}
 >     void set_e2ndId(DetId e2ndId)  {  e2ndId_ = e2ndId;}
 > 
-64,69c115,123
+64,67c115,121
 <     Double32_t LAT_;
 <     Double32_t etaLAT_;
 <     Double32_t phiLAT_;
 <     Double32_t A20_, A42_;
-<     std::vector<Double32_t> energyBasketFractionEta_;
-<     std::vector<Double32_t> energyBasketFractionPhi_;
 ---
 >     Double32_t sEtaEta_, sEtaPhi_, sPhiPhi_;
 >     Double32_t sRR_, sMajMaj_, sMajMajMaj_, sMajMajMajMaj_, sMinMin_;
@@ -109,5 +102,3 @@ diff -r1.9 ClusterShape.h
 >     Double32_t sRREnergy_, sMajMajEnergy_, sMajMajMajEnergy_, sMajMajMajMajEnergy_, sMinMinEnergy_;
 >     Double32_t s_alphaEnergy_, displacementEnergy_;
 >     
->     std::vector<double> energyBasketFractionEta_;
->     std::vector<double> energyBasketFractionPhi_;
