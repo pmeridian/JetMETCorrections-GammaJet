@@ -1,0 +1,109 @@
+Index: DataFormats/EgammaReco/interface/ClusterShape.h
+===================================================================
+RCS file: /cvs_server/repositories/CMSSW/CMSSW/DataFormats/EgammaReco/interface/ClusterShape.h,v
+retrieving revision 1.10
+diff -r1.10 ClusterShape.h
+11c11
+<  * \version $Id: ClusterShape.h,v 1.10 2008/04/16 09:06:54 ferriff Exp $
+---
+>  * \version $Id: ClusterShape.h,v 1.6 2006/11/13 18:02:05 futyand Exp $
+18a19
+> #include "DataFormats/Math/interface/Point3D.h"
+24,32c25
+<     ClusterShape() { }
+<     ClusterShape( double cEE, double cEP, double cPP, 
+<                   double eMax, DetId eMaxId, double e2nd, DetId e2ndId,
+< 		  double e2x2, double e3x2, double e3x3, double e4x4,
+< 		  double e5x5, double E10_Right_, double E10_Left_,
+< 		  double E10_Top_, double E10_Bottom_, double e3x2Ratio,
+< 		  double LAT, double etaLAT, double phiLAT, double A20, double A42,
+<                   std::vector<double> energyBasketFractionEta_,
+<                   std::vector<double> energyBasketFractionPhi_);
+---
+>     ClusterShape();
+48,53c41,61
+<     double lat() const { return LAT_; }
+<     double etaLat() const { return etaLAT_; }
+<     double phiLat() const { return phiLAT_; }
+<     double zernike20() const { return A20_; }
+<     double zernike42() const { return A42_; }
+< 
+---
+>     double sEtaEta() const { return sEtaEta_; }
+>     double sEtaPhi() const { return sEtaPhi_; }
+>     double sPhiPhi() const { return sPhiPhi_; }
+>     double sRR()             const { return sRR_; }
+>     double sMajMaj()         const { return sMajMaj_; }
+>     double sMajMajMaj()      const { return sMajMajMaj_; }
+>     double sMajMajMajMaj()   const { return sMajMajMajMaj_; }
+>     double sMinMin()         const { return sMinMin_; }
+>     double s_alpha()         const { return s_alpha_; }
+>     double displacement()    const { return displacement_; }
+>     double fisher()    const { return fisher_; }
+>     double sEtaEtaEnergy() const { return sEtaEtaEnergy_; }
+>     double sEtaPhiEnergy() const { return sEtaPhiEnergy_; }
+>     double sPhiPhiEnergy() const { return sPhiPhiEnergy_; }
+>     double sRREnergy()             const { return sRREnergy_; }
+>     double sMajMajEnergy()         const { return sMajMajEnergy_; }
+>     double sMajMajMajEnergy()      const { return sMajMajMajEnergy_; }
+>     double sMajMajMajMajEnergy()   const { return sMajMajMajMajEnergy_; }
+>     double sMinMinEnergy()         const { return sMinMinEnergy_; }
+>     double s_alphaEnergy()         const { return s_alphaEnergy_; }
+>     double displacementEnergy()          const { return displacementEnergy_; }
+57a66,108
+>     
+>     //Set Methods
+>     void set_eMax(Double32_t eMax) { eMax_ = eMax; }
+>     void set_e2nd(Double32_t e2nd)  {  e2nd_ = e2nd; }
+>     void set_e2x2(Double32_t e2x2)  {  e2x2_ = e2x2; }
+>     void set_e3x2(Double32_t e3x2)  {  e3x2_ = e3x2; }
+>     void set_e3x3(Double32_t e3x3)  {  e3x3_ = e3x3; }
+>     void set_e4x4(Double32_t e4x4)  {  e4x4_ = e4x4; }
+>     void set_e5x5(Double32_t e5x5)  {  e5x5_ = e5x5; }
+>     void set_e2x5Right(Double32_t e2x5Right)  {  e2x5Right_ = e2x5Right; }
+>     void set_e2x5Left(Double32_t e2x5Left)  {  e2x5Left_ = e2x5Left; }
+>     void set_e2x5Top(Double32_t e2x5Top)  {  e2x5Top_ = e2x5Top; }
+>     void set_e2x5Bottom(Double32_t e2x5Bottom)  {  e2x5Bottom_ = e2x5Bottom; }
+>     void set_e3x2Ratio(Double32_t e3x2Ratio)  {  e3x2Ratio_ = e3x2Ratio; }
+>     void set_covEtaEta(Double32_t covEtaEta)  {  covEtaEta_ = covEtaEta; }
+>     void set_covEtaPhi(Double32_t covEtaPhi)  {  covEtaPhi_ = covEtaPhi; }
+>     void set_covPhiPhi(Double32_t covPhiPhi)  {  covPhiPhi_ = covPhiPhi; }
+>     void set_sEtaEta(Double32_t sEtaEta)  {  sEtaEta_ = sEtaEta; }
+>     void set_sEtaPhi(Double32_t sEtaPhi)  {  sEtaPhi_ = sEtaPhi; }
+>     void set_sPhiPhi(Double32_t sPhiPhi)  {  sPhiPhi_ = sPhiPhi; }
+>     void set_sRR(Double32_t sRR)              {  sRR_ = sRR; }
+>     void set_sMajMaj(Double32_t sMajMaj)          {  sMajMaj_ = sMajMaj; }
+>     void set_sMajMajMaj(Double32_t sMajMajMaj)       {  sMajMajMaj_ = sMajMajMaj; }
+>     void set_sMajMajMajMaj(Double32_t sMajMajMajMaj)    {  sMajMajMajMaj_ = sMajMajMajMaj; }
+>     void set_sMinMin(Double32_t sMinMin)          {  sMinMin_ = sMinMin; }
+>     void set_s_alpha(Double32_t s_alpha)          {  s_alpha_ = s_alpha; }
+>     void set_displacement(Double32_t displacement)     {  displacement_ = displacement; }
+>     void set_fisher(Double32_t fisher)     {  fisher_ = fisher; }
+>     void set_sEtaEtaEnergy(Double32_t sEtaEtaEnergy)  {  sEtaEtaEnergy_ = sEtaEtaEnergy; }
+>     void set_sEtaPhiEnergy(Double32_t sEtaPhiEnergy)  {  sEtaPhiEnergy_ = sEtaPhiEnergy; }
+>     void set_sPhiPhiEnergy(Double32_t sPhiPhiEnergy)  {  sPhiPhiEnergy_ = sPhiPhiEnergy; }
+>     void set_sRREnergy(Double32_t sRREnergy)              {  sRREnergy_ = sRREnergy; }
+>     void set_sMajMajEnergy(Double32_t sMajMajEnergy)          {  sMajMajEnergy_ = sMajMajEnergy; }
+>     void set_sMajMajMajEnergy(Double32_t sMajMajMajEnergy)       {  sMajMajMajEnergy_ = sMajMajMajEnergy; }
+>     void set_sMajMajMajMajEnergy(Double32_t sMajMajMajMajEnergy)    {  sMajMajMajMajEnergy_ = sMajMajMajMajEnergy; }
+>     void set_sMinMinEnergy(Double32_t sMinMinEnergy)          {  sMinMinEnergy_ = sMinMinEnergy; }
+>     void set_s_alphaEnergy(Double32_t s_alphaEnergy)          {  s_alphaEnergy_ = s_alphaEnergy; }
+>     void set_displacementEnergy(Double32_t displacement)           {  displacementEnergy_ = displacement; }
+>     void set_energyBasketFractionEta(std::vector<double> energyBasketFractionEta)  {  energyBasketFractionEta_ = energyBasketFractionEta;}
+>     void set_energyBasketFractionPhi(std::vector<double> energyBasketFractionPhi)  {  energyBasketFractionPhi_ = energyBasketFractionPhi;}
+>     void set_eMaxId(DetId eMaxId)  {  eMaxId_ = eMaxId;}
+>     void set_e2ndId(DetId e2ndId)  {  e2ndId_ = e2ndId;}
+> 
+64,67c115,121
+<     Double32_t LAT_;
+<     Double32_t etaLAT_;
+<     Double32_t phiLAT_;
+<     Double32_t A20_, A42_;
+---
+>     Double32_t sEtaEta_, sEtaPhi_, sPhiPhi_;
+>     Double32_t sRR_, sMajMaj_, sMajMajMaj_, sMajMajMajMaj_, sMinMin_;
+>     Double32_t s_alpha_, displacement_, fisher_;
+>     Double32_t sEtaEtaEnergy_, sEtaPhiEnergy_, sPhiPhiEnergy_;
+>     Double32_t sRREnergy_, sMajMajEnergy_, sMajMajMajEnergy_, sMajMajMajMajEnergy_, sMinMinEnergy_;
+>     Double32_t s_alphaEnergy_, displacementEnergy_;
+>     
