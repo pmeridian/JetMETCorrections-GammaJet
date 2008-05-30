@@ -3,10 +3,6 @@ Index: DataFormats/EgammaReco/interface/ClusterShape.h
 RCS file: /cvs_server/repositories/CMSSW/CMSSW/DataFormats/EgammaReco/interface/ClusterShape.h,v
 retrieving revision 1.10
 diff -r1.10 ClusterShape.h
-11c11
-<  * \version $Id: ClusterShape.h,v 1.10 2008/04/16 09:06:54 ferriff Exp $
----
->  * \version $Id: ClusterShape.h,v 1.6 2006/11/13 18:02:05 futyand Exp $
 18a19
 > #include "DataFormats/Math/interface/Point3D.h"
 24,32c25
