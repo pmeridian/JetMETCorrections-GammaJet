@@ -34,6 +34,8 @@
 <use name=RecoEcal/EgammaCoreTools>
 <use name=RecoEgamma/EgammaTools>
 <use name=JetMETCorrections/Objects>
+<use name=DataFormats/L1GlobalTrigger> 
+<use name=DataFormats/L1GlobalMuonTrigger> 
 <export>
    <lib name=JetMETCorrectionsGammaJet>
    <use name=JetMETCorrections/Objects>
