@@ -179,7 +179,7 @@ diff -r1.20 ClusterShapeAlgo.cc
 >     See += (wiDetId[i]*(etaDetId[i]-mid_eta)*(etaDetId[i]-mid_eta)) / Weight;
 >     Spp += 0.8*(wiDetId[i]*(phiDetId[i]-mid_phi)*(phiDetId[i]-mid_phi)) / Weight;
 >     Sep += sqrt(0.8)*(wiDetId[i]*(etaDetId[i]-mid_eta)*(phiDetId[i]-mid_phi)) / Weight;
-> p  }
+>   }
 > 
 >   Sxx = ((See + Spp) + sqrt((See - Spp)*(See - Spp) + 4*Sep*Sep)) / 2.;
 >   Syy = ((See + Spp) - sqrt((See - Spp)*(See - Spp) + 4*Sep*Sep)) / 2.;
