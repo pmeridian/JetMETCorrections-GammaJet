@@ -36,6 +36,7 @@
 <use name=JetMETCorrections/Objects>
 <use name=DataFormats/L1GlobalTrigger> 
 <use name=DataFormats/L1GlobalMuonTrigger> 
+<use name=MyAnalysis/IsolationTools>
 <export>
    <lib name=JetMETCorrectionsGammaJet>
    <use name=JetMETCorrections/Objects>
