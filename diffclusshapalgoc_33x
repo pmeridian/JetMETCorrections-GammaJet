@@ -1,0 +1,513 @@
+14d13
+< #include "FWCore/MessageLogger/interface/MessageLogger.h"
+16,17d14
+< #include "CLHEP/Geometry/Transform3D.h"
+< #include "CLHEP/Units/GlobalSystemOfUnits.h"
+24c21,22
+<                                                const CaloSubdetectorTopology* topology)
+---
+>                                                const CaloSubdetectorTopology* topology,
+> 					       const double K_value)
+25a24
+>   reco::ClusterShape clusterShape; 
+41,49c40,92
+<   Calculate_EnergyDepTopology (passedCluster,hits,geometry,true) ;
+<   Calculate_lat(passedCluster);
+<   Calculate_ComplexZernikeMoments(passedCluster);
+< 
+<   return reco::ClusterShape(covEtaEta_, covEtaPhi_, covPhiPhi_, eMax_, eMaxId_,
+< 			    e2nd_, e2ndId_, e2x2_, e3x2_, e3x3_,e4x4_, e5x5_,
+< 			    e2x5Right_, e2x5Left_, e2x5Top_, e2x5Bottom_,
+< 			    e3x2Ratio_, lat_, etaLat_, phiLat_, A20_, A42_,
+< 			    energyBasketFractionEta_, energyBasketFractionPhi_);
+---
+> 
+>   SetKValue(K_value);
+>   Calculate_2D_Covariances(passedCluster,hits,LOG);
+>   Calculate_2D_Covariances(passedCluster,hits,ENERGY); 
+>   Calculate_Fisher(passedCluster);
+>   SetVariables(clusterShape);
+>   
+>   return clusterShape; 
+> }
+> 
+> void ClusterShapeAlgo::SetVariables(reco::ClusterShape &clusterShape)
+> {
+>   clusterShape.set_eMax(eMax_);
+>   clusterShape.set_e2nd(e2nd_);
+>   clusterShape.set_e2x2(e2x2_);
+>   clusterShape.set_e3x2(e3x2_);
+>   clusterShape.set_e3x3(e3x3_);
+>   clusterShape.set_e4x4(e4x4_);
+>   clusterShape.set_e5x5(e5x5_);
+>   clusterShape.set_e2x5Right(e2x5Right_); 
+>   clusterShape.set_e2x5Left(e2x5Left_);
+>   clusterShape.set_e2x5Top(e2x5Top_);
+>   clusterShape.set_e2x5Bottom(e2x5Bottom_); 
+>   clusterShape.set_e3x2Ratio(e3x2Ratio_);
+>   clusterShape.set_covEtaEta(covEtaEta_); 
+>   clusterShape.set_covEtaPhi(covEtaPhi_); 
+>   clusterShape.set_covPhiPhi(covPhiPhi_); 
+>   clusterShape.set_sEtaEta(sEtaEta_); 
+>   clusterShape.set_sEtaPhi(sEtaPhi_); 
+>   clusterShape.set_sPhiPhi(sPhiPhi_); 
+>   clusterShape.set_sRR(sRR_);         
+>   clusterShape.set_sMajMaj(sMajMaj_);
+>   clusterShape.set_sMajMajMaj(sMajMajMaj_);    
+>   clusterShape.set_sMajMajMajMaj(sMajMajMajMaj_);   
+>   clusterShape.set_sMinMin(sMinMin_);         
+>   clusterShape.set_s_alpha(s_alpha_);        
+>   clusterShape.set_displacement(displacement_); 
+>   clusterShape.set_fisher(fisher_); 
+>   clusterShape.set_sEtaEtaEnergy(sEtaEtaEnergy_); 
+>   clusterShape.set_sEtaPhiEnergy(sEtaPhiEnergy_); 
+>   clusterShape.set_sPhiPhiEnergy(sPhiPhiEnergy_); 
+>   clusterShape.set_sRREnergy(sRREnergy_);             
+>   clusterShape.set_sMajMajEnergy(sMajMajEnergy_);         
+>   clusterShape.set_sMajMajMajEnergy(sMajMajMajEnergy_);      
+>   clusterShape.set_sMajMajMajMajEnergy(sMajMajMajMajEnergy_);   
+>   clusterShape.set_sMinMinEnergy(sMinMinEnergy_);         
+>   clusterShape.set_s_alphaEnergy(s_alphaEnergy_);         
+>   clusterShape.set_displacementEnergy(displacementEnergy_);          
+>   clusterShape.set_energyBasketFractionEta(energyBasketFractionEta_); 
+>   clusterShape.set_energyBasketFractionPhi(energyBasketFractionPhi_); 
+>   clusterShape.set_eMaxId(eMaxId_); 
+>   clusterShape.set_e2ndId(e2ndId_); 
+>   
+51a95,96
+> void ClusterShapeAlgo::SetKValue(const double K_value) { K_ = K_value; }
+> 
+66c111
+<       EcalRecHitCollection::const_iterator itt = hits->find((*posCurrent).first);
+---
+>        EcalRecHitCollection::const_iterator itt = hits->find((*posCurrent).first);
+92c137
+<   { 
+---
+>     { 
+117c162
+<     {
+---
+>       {
+316c361,363
+<       double w0_ = parameterMap_.find("W0")->second;
+---
+>       //double w0_ = parameterMap_.find("W0")->second;
+>       double w0_ = 4.2;
+> 
+382a430,604
+> void ClusterShapeAlgo::Calculate_2D_Covariances(const reco::BasicCluster &passedCluster,
+>                                                    const EcalRecHitCollection* hits,
+>                                                    const int weighting){
+> 
+>   if   (weighting==LOG)
+>     sEtaEta_=sEtaPhi_=sPhiPhi_
+>       =sRR_=sMajMaj_=sMajMajMaj_=sMajMajMajMaj_=s_alpha_=displacement_=0.;
+>   else
+>     sEtaEtaEnergy_=sEtaPhiEnergy_=sPhiPhiEnergy_
+>       =sRREnergy_=sMajMajEnergy_=sMajMajMajEnergy_=sMajMajMajMajEnergy_=sMinMinEnergy_=s_alphaEnergy_=displacementEnergy_=0.;
+>   
+>   double mid_eta,mid_phi;
+>   mid_eta=mid_phi=0.;
+>   
+>   double See,Sep,Spp,Srr,Sxx,Sxxx,Sxxxx,Syy,alpha,displacement,Weight;
+>   See=Sep=Spp=Srr=Sxx=Sxxx=Sxxxx=Syy=alpha=displacement=Weight=0.;
+>   
+>   double Etot=passedCluster.energy(); 
+>   
+>   double vector_maj[2], vector_min[2];
+>   vector_maj[0]=vector_min[1]=1.;
+>   vector_maj[1]=vector_min[0]=0.;
+>   
+>   int nCry=0;
+> 
+>   double max_phi=-10.;
+>   double min_phi=100.;
+>   double max_ene=-100.;
+>   int max_index=-10;
+>   
+>   std::vector<double> etaDetId;
+>   std::vector<double> phiDetId;
+>   std::vector<double> wiDetId;
+>   std::vector< std::pair<DetId, float> > clusterDetIds = passedCluster.hitsAndFractions();
+>   std::vector<DetId>::iterator posCurrent;
+>   
+>   //std::cout<<"-----------------Start Calculation-----------------"<<std::endl;
+>   for(std::vector< std::pair<DetId, float> >::iterator posCurrent = clusterDetIds.begin(); posCurrent != clusterDetIds.end(); posCurrent++){
+>     if (((*posCurrent).first != DetId(0)) && (hits->find((*posCurrent).first) != hits->end())){
+>       EBDetId temp_EBDetId((*posCurrent).first);
+>       double temp_eta=(temp_EBDetId.ieta() > 0 ? temp_EBDetId.ieta() + 84.5 : temp_EBDetId.ieta() + 85.5);
+>       double temp_phi=temp_EBDetId.iphi() - 0.5;
+>       double temp_ene=(hits->find((*posCurrent).first))->energy();
+>       
+>       if(temp_ene > max_ene){
+>         max_ene = temp_ene;
+>         max_index=nCry;
+>       }
+>       
+>       double temp_wi=((weighting==LOG) ?
+>                       ( 0 > (K_ + log( fabs(temp_ene)/Etot)) ? 0 : K_ + log( fabs(temp_ene)/Etot))
+>                       :  temp_ene);
+>       if(temp_phi>max_phi) max_phi=temp_phi;
+>       if(temp_phi<min_phi) min_phi=temp_phi;
+>       etaDetId.push_back(temp_eta);
+>       phiDetId.push_back(temp_phi);
+>       wiDetId.push_back(temp_wi);
+>       Weight+=temp_wi;
+>       //if(weighting==LOG && ((passedCluster.position()).phi()<0.1 && (passedCluster.position()).phi()>-0.1)) std::cout<<"Cry #:"<<nCry<<"  eta:"<<temp_eta<<"  phi:"<<temp_phi<<"  E: "<<temp_ene<<"  weight:"<<temp_wi<<std::endl;
+>       nCry++;
+>     }
+>   }
+> 
+>   //std::cout<<"TOTAL ENERGY: "<<Etot<<std::endl; 
+>   //std::cout<<"-----------------End Cluster-----------------"<<std::endl; std::cout<<""<<std::endl;
+> 
+> if(max_phi==359.5 && min_phi==0.5){ 
+>     for(int i=0; i<nCry; i++){
+>       if(phiDetId[i] - 179. > 0) phiDetId[i]-=360.; 
+>       //std::cout<<"Cry #:"<<i<<"  eta:"<<etaDetId[i]<<"  phi:"<<phiDetId[i]<<"  weight:"<<wiDetId[i]<<std::endl; 
+>       mid_phi+=phiDetId[i]*wiDetId[i];
+>       mid_eta+=etaDetId[i]*wiDetId[i];
+>     }
+>   }
+>   
+>   else{
+>     for(int i=0; i<nCry; i++){
+>       mid_phi+=phiDetId[i]*wiDetId[i];
+>       mid_eta+=etaDetId[i]*wiDetId[i];
+>     }
+>   }
+> 
+>   mid_eta/=Weight;
+>   mid_phi/=Weight;
+> 
+>   // Calcolo la matrice di covarianza
+>   for(int i=0; i<nCry; i++){
+>     See += (wiDetId[i]*(etaDetId[i]-mid_eta)*(etaDetId[i]-mid_eta)) / Weight;
+>     Spp += 0.8*(wiDetId[i]*(phiDetId[i]-mid_phi)*(phiDetId[i]-mid_phi)) / Weight;
+>     Sep += sqrt(0.8)*(wiDetId[i]*(etaDetId[i]-mid_eta)*(phiDetId[i]-mid_phi)) / Weight;
+>   }
+> 
+>   Sxx = ((See + Spp) + sqrt((See - Spp)*(See - Spp) + 4*Sep*Sep)) / 2.;
+>   Syy = ((See + Spp) - sqrt((See - Spp)*(See - Spp) + 4*Sep*Sep)) / 2.;
+>   alpha = atan((See - Spp + sqrt(pow(Spp - See,2) + 4*pow(Sep,2))) / (2*Sep));
+> 
+>   Srr = See + Spp;
+> 
+>   // Calcolo autovalori e autovettori della matrice
+>   if(Sep != 0.){
+>     vector_maj[1]=1.;
+>     vector_maj[0]= - (Sep) / (See - Sxx);
+>     vector_min[1]=1.;
+>     vector_min[0]= - (Sep) / (See - Syy);
+>     double lenght_maj = sqrt(vector_maj[0]*vector_maj[0] + vector_maj[1]*vector_maj[1]);
+>     double lenght_min = sqrt(vector_min[0]*vector_min[0] + vector_min[1]*vector_min[1]);
+>     vector_maj[0] = vector_maj[0] / lenght_maj;
+>     vector_maj[1] = vector_maj[1] / lenght_maj;
+>     vector_min[0] = vector_min[0] / lenght_min;
+>     vector_min[1] = vector_min[1] / lenght_min;
+>   }
+> 
+>   double a = vector_min[1] / vector_min[0];
+>   double b = -1.;
+>   double c = mid_phi - a*mid_eta;
+>   double n = sqrt(a*a + b*b);
+>   
+>   for(int i=0; i<nCry; i++){
+>     double dist_min = (a*etaDetId[i] + b*phiDetId[i] + c) / n;
+>     Sxxx += (wiDetId[i] * pow(dist_min,3)) / Weight;
+>     Sxxxx += (wiDetId[i] * pow(dist_min,4)) / Weight;
+>   }
+> 
+>   displacement = fabs((a*etaDetId[max_index] + b*phiDetId[max_index] + c) / n);
+> 
+>   if(weighting==LOG){
+>     sEtaEta_=See;
+>     sEtaPhi_=Sep;
+>     sPhiPhi_=Spp;
+>     sRR_=Srr;
+>     sMajMaj_=Sxx;
+>     sMajMajMaj_=Sxxx;
+>     sMajMajMajMaj_=Sxxxx;
+>     sMinMin_=Syy;
+>     s_alpha_=alpha;
+>     displacement_=displacement;
+>   }
+>   else{
+>     sEtaEtaEnergy_=See;
+>     sEtaPhiEnergy_=Sep;
+>     sPhiPhiEnergy_=Spp;
+>     sRREnergy_=Srr;
+>     sMajMajEnergy_=Sxx;
+>     sMajMajMajEnergy_=Sxxx;
+>     sMajMajMajMajEnergy_=Sxxxx;
+>     sMinMinEnergy_=Syy;
+>     s_alphaEnergy_=alpha;
+>     displacementEnergy_=displacement;
+>   }
+> }
+> 
+> void ClusterShapeAlgo::Calculate_Fisher(const reco::BasicCluster &passedCluster)
+> {
+>   double w1, w2, w3; 
+>   double energy = passedCluster.energy();
+>   double eta = (passedCluster.position()).eta();
+> 
+>   double l_eta = 1.29 / (sin(2*atan(exp(-eta))));
+>   double alpha_min = 2 * asin(0.135 / energy);
+>   
+>   // Separazione aspettata tra i due fotoni di decadimento del pi0
+>   double delta = 2 * l_eta * tan(alpha_min / 2.);
+> 
+>   // Ho usato i coefficienti trovati per la tesi
+>   if(delta < 0.008){ w1 = -0.995593; w2 = 0.0050494; w3 = -0.0936416; }
+>   else if(delta >= 0.008 && delta < 0.01){ w1 = -0.99525; w2 = 0.0139388; w3 = -0.0963462; }
+>   else if(delta >= 0.01 && delta < 0.012){ w1 = -0.993166; w2 = 0.0170142; w3 = -0.115461; }
+>   else if(delta >= 0.012 && delta < 0.014){ w1 = -0.993973; w2 = 0.00226486; w3 = -0.109601; }
+>   else if(delta >= 0.014 && delta < 0.016){  w1 = -0.991098; w2 = 0.00678975; w3 = -0.132964; }
+>   else if(delta >= 0.016 && delta < 0.02){ w1 = -0.990108; w2 = 0.0191177; w3 = -0.139001; }
+>   else{ w1 = -0.97468; w2 = 0.0386515; w3 = -0.220239; }
+> 
+>   fisher_ = ( w1 * sMajMaj_ ) +  ( w2 * sMajMajMaj_ ) + ( w3 * displacement_ );
+> }
+> 
+442,680d663
+< 
+< void ClusterShapeAlgo::Calculate_lat(const reco::BasicCluster &passedCluster) {
+< 
+<   double r,redmoment=0;
+<   double phiRedmoment = 0 ;
+<   double etaRedmoment = 0 ;
+<   int n,n1,n2,tmp;
+<   int clusterSize=energyDistribution_.size();
+<   if (clusterSize<3) {
+<     etaLat_ = 0.0 ; 
+<     lat_ = 0.0;
+<     return; 
+<   }
+<   
+<   n1=0; n2=1;
+<   if (energyDistribution_[1].deposited_energy > 
+<       energyDistribution_[0].deposited_energy) 
+<     {
+<       tmp=n2; n2=n1; n1=tmp;
+<     }
+<   for (int i=2; i<clusterSize; i++) {
+<     n=i;
+<     if (energyDistribution_[i].deposited_energy > 
+<         energyDistribution_[n1].deposited_energy) 
+<       {
+<         tmp = n2;
+<         n2 = n1; n1 = i; n=tmp;
+<       } else {
+<         if (energyDistribution_[i].deposited_energy > 
+<             energyDistribution_[n2].deposited_energy) 
+<           {
+<             tmp=n2; n2=i; n=tmp;
+<           }
+<       }
+< 
+<     r = energyDistribution_[n].r;
+<     redmoment += r*r* energyDistribution_[n].deposited_energy;
+<     double rphi = r * cos (energyDistribution_[n].phi) ;
+<     phiRedmoment += rphi * rphi * energyDistribution_[n].deposited_energy;
+<     double reta = r * sin (energyDistribution_[n].phi) ;
+<     etaRedmoment += reta * reta * energyDistribution_[n].deposited_energy;
+<   } 
+<   double e1 = energyDistribution_[n1].deposited_energy;
+<   double e2 = energyDistribution_[n2].deposited_energy;
+<   
+<   lat_ = redmoment/(redmoment+2.19*2.19*(e1+e2));
+<   phiLat_ = phiRedmoment/(phiRedmoment+2.19*2.19*(e1+e2));
+<   etaLat_ = etaRedmoment/(etaRedmoment+2.19*2.19*(e1+e2));
+< }
+< 
+< void ClusterShapeAlgo::Calculate_ComplexZernikeMoments(const reco::BasicCluster &passedCluster) {
+<   // Calculate only the moments which go into the default cluster shape
+<   // (moments with m>=2 are the only sensitive to azimuthal shape)
+<   A20_ = absZernikeMoment(passedCluster,2,0);
+<   A42_ = absZernikeMoment(passedCluster,4,2);
+< }
+< 
+< double ClusterShapeAlgo::absZernikeMoment(const reco::BasicCluster &passedCluster,
+<                                           int n, int m, double R0) {
+<   // 1. Check if n,m are correctly
+<   if ((m>n) || ((n-m)%2 != 0) || (n<0) || (m<0)) return -1;
+< 
+<   // 2. Check if n,R0 are within validity Range :
+<   // n>20 or R0<2.19cm  just makes no sense !
+<   if ((n>20) || (R0<=2.19)) return -1;
+<   if (n<=5) return fast_AbsZernikeMoment(passedCluster,n,m,R0);
+<   else return calc_AbsZernikeMoment(passedCluster,n,m,R0);
+< }
+< 
+< double ClusterShapeAlgo::f00(double r) { return 1; }
+< 
+< double ClusterShapeAlgo::f11(double r) { return r; }
+< 
+< double ClusterShapeAlgo::f20(double r) { return 2.0*r*r-1.0; }
+< 
+< double ClusterShapeAlgo::f22(double r) { return r*r; }
+< 
+< double ClusterShapeAlgo::f31(double r) { return 3.0*r*r*r - 2.0*r; }
+< 
+< double ClusterShapeAlgo::f33(double r) { return r*r*r; }
+< 
+< double ClusterShapeAlgo::f40(double r) { return 6.0*r*r*r*r-6.0*r*r+1.0; }
+< 
+< double ClusterShapeAlgo::f42(double r) { return 4.0*r*r*r*r-3.0*r*r; }
+< 
+< double ClusterShapeAlgo::f44(double r) { return r*r*r*r; }
+< 
+< double ClusterShapeAlgo::f51(double r) { return 10.0*pow(r,5)-12.0*pow(r,3)+3.0*r; }
+< 
+< double ClusterShapeAlgo::f53(double r) { return 5.0*pow(r,5) - 4.0*pow(r,3); }
+< 
+< double ClusterShapeAlgo::f55(double r) { return pow(r,5); }
+< 
+< double ClusterShapeAlgo::fast_AbsZernikeMoment(const reco::BasicCluster &passedCluster,
+<                                                int n, int m, double R0) {
+<   double r,ph,e,Re=0,Im=0,result;
+<   double TotalEnergy = passedCluster.energy();
+<   int index = (n/2)*(n/2)+(n/2)+m;
+<   int clusterSize=energyDistribution_.size();
+<   if(clusterSize<3) return 0.0;
+< 
+<   for (int i=0; i<clusterSize; i++)
+<     { 
+<       r = energyDistribution_[i].r / R0;
+<       if (r<1) {
+<         fcn_.clear();
+<         Calculate_Polynomials(r);
+<         ph = (energyDistribution_[i]).phi;
+<         e = energyDistribution_[i].deposited_energy;
+<         Re = Re + e/TotalEnergy * fcn_[index] * cos( (double) m * ph);
+<         Im = Im - e/TotalEnergy * fcn_[index] * sin( (double) m * ph);
+<       }
+<     }
+<   result = sqrt(Re*Re+Im*Im);
+< 
+<   return result;
+< }
+< 
+< double ClusterShapeAlgo::calc_AbsZernikeMoment(const reco::BasicCluster &passedCluster,
+<                                                int n, int m, double R0) {
+<   double r,ph,e,Re=0,Im=0,f_nm,result;
+<   double TotalEnergy = passedCluster.energy();
+<   std::vector< std::pair<DetId, float> > clusterDetIds = passedCluster.hitsAndFractions();
+<   int clusterSize=energyDistribution_.size();
+<   if(clusterSize<3) return 0.0;
+< 
+<   for (int i=0; i<clusterSize; i++)
+<     { 
+<       r = energyDistribution_[i].r / R0;
+<       if (r<1) {
+<         ph = (energyDistribution_[i]).phi;
+<         e = energyDistribution_[i].deposited_energy;
+<         f_nm=0;
+<         for (int s=0; s<=(n-m)/2; s++) {
+<           if (s%2==0)
+<             { 
+<               f_nm = f_nm + factorial(n-s)*pow(r,(double) (n-2*s))/(factorial(s)*factorial((n+m)/2-s)*factorial((n-m)/2-s));
+<             }else {
+<               f_nm = f_nm - factorial(n-s)*pow(r,(double) (n-2*s))/(factorial(s)*factorial((n+m)/2-s)*factorial((n-m)/2-s));
+<             }
+<         }
+<         Re = Re + e/TotalEnergy * f_nm * cos( (double) m*ph);
+<         Im = Im - e/TotalEnergy * f_nm * sin( (double) m*ph);
+<       }
+<     }
+<   result = sqrt(Re*Re+Im*Im);
+< 
+<   return result;
+< }
+< 
+< void ClusterShapeAlgo::Calculate_EnergyDepTopology (const reco::BasicCluster &passedCluster,
+< 						    const EcalRecHitCollection *hits,
+< 						    const CaloSubdetectorGeometry* geometry,
+< 						    bool logW) {
+<   // resets the energy distribution
+<   energyDistribution_.clear();
+< 
+<   // init a map of the energy deposition centered on the
+<   // cluster centroid. This is for momenta calculation only.
+<   CLHEP::Hep3Vector clVect(passedCluster.position().x(),
+<                            passedCluster.position().y(),
+<                            passedCluster.position().z());
+<   CLHEP::Hep3Vector clDir(clVect);
+<   clDir*=1.0/clDir.mag();
+<   // in the transverse plane, axis perpendicular to clusterDir
+<   CLHEP::Hep3Vector theta_axis(clDir.y(),-clDir.x(),0.0);
+<   theta_axis *= 1.0/theta_axis.mag();
+<   CLHEP::Hep3Vector phi_axis = theta_axis.cross(clDir);
+< 
+<   std::vector< std::pair<DetId, float> > clusterDetIds = passedCluster.hitsAndFractions();
+< 
+<   EcalClusterEnergyDeposition clEdep;
+<   EcalRecHit testEcalRecHit;
+<   std::vector< std::pair<DetId, float> >::iterator posCurrent;
+<   // loop over crystals
+<   for(posCurrent=clusterDetIds.begin(); posCurrent!=clusterDetIds.end(); ++posCurrent) {
+<     EcalRecHitCollection::const_iterator itt = hits->find( (*posCurrent).first );
+<     testEcalRecHit=*itt;
+< 
+<     if(( (*posCurrent).first != DetId(0)) && (hits->find( (*posCurrent).first ) != hits->end())) {
+<       clEdep.deposited_energy = testEcalRecHit.energy();
+< 
+<       // if logarithmic weight is requested, apply cut on minimum energy of the recHit
+<       if(logW) {
+<         double w0_ = parameterMap_.find("W0")->second;
+< 
+<         if ( clEdep.deposited_energy == 0 ) {
+<           LogDebug("ClusterShapeAlgo") << "Crystal has zero energy; skipping... ";
+<           continue;
+<         }
+<         double weight = std::max(0.0, w0_ + log(fabs(clEdep.deposited_energy)/passedCluster.energy()) );
+<         if(weight==0) {
+<           LogDebug("ClusterShapeAlgo") << "Crystal has insufficient energy: E = " 
+<                                        << clEdep.deposited_energy << " GeV; skipping... ";
+<           continue;
+<         }
+<         else LogDebug("ClusterShapeAlgo") << "===> got crystal. Energy = " << clEdep.deposited_energy << " GeV. ";
+<       }
+<       DetId id_ = (*posCurrent).first;
+<       const CaloCellGeometry *this_cell = geometry->getGeometry(id_);
+<       GlobalPoint cellPos = this_cell->getPosition();
+<       CLHEP::Hep3Vector gblPos (cellPos.x(),cellPos.y(),cellPos.z()); //surface position?
+<       // Evaluate the distance from the cluster centroid
+<       CLHEP::Hep3Vector diff = gblPos - clVect;
+<       // Important: for the moment calculation, only the "lateral distance" is important
+<       // "lateral distance" r_i = distance of the digi position from the axis Origin-Cluster Center
+<       // ---> subtract the projection on clDir
+<       CLHEP::Hep3Vector DigiVect = diff - diff.dot(clDir)*clDir;
+<       clEdep.r = DigiVect.mag();
+<       LogDebug("ClusterShapeAlgo") << "E = " << clEdep.deposited_energy
+<                                    << "\tdiff = " << diff.mag()
+<                                    << "\tr = " << clEdep.r;
+<       clEdep.phi = DigiVect.angle(theta_axis);
+<       if(DigiVect.dot(phi_axis)<0) clEdep.phi = 2*M_PI - clEdep.phi;
+<       energyDistribution_.push_back(clEdep);
+<     }
+<   } 
+< }
+< 
+< void ClusterShapeAlgo::Calculate_Polynomials(double rho) {
+<   fcn_.push_back(f00(rho));
+<   fcn_.push_back(f11(rho));
+<   fcn_.push_back(f20(rho));
+<   fcn_.push_back(f31(rho));
+<   fcn_.push_back(f22(rho));
+<   fcn_.push_back(f33(rho));
+<   fcn_.push_back(f40(rho));
+<   fcn_.push_back(f51(rho));
+<   fcn_.push_back(f42(rho));
+<   fcn_.push_back(f53(rho));
+<   fcn_.push_back(f44(rho));
+<   fcn_.push_back(f55(rho));
+< }
+< 
+< double ClusterShapeAlgo::factorial(int n) const {
+<   double res=1.0;
+<   for(int i=2; i<=n; i++) res*=(double) i;
+<   return res;
+< }
