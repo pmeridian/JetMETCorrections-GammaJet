@@ -24,7 +24,7 @@
 > 
 >   SetKValue(K_value);
 >   Calculate_2D_Covariances(passedCluster,hits,LOG);
->   Calculate_2D_Covariances(passedCluster,hits,ENERGY); 
+>   //Calculate_2D_Covariances(passedCluster,hits,ENERGY); 
 >   Calculate_Fisher(passedCluster);
 >   SetVariables(clusterShape);
 >   
