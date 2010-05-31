@@ -98,6 +98,11 @@ hybridSuperClusters.severitySpikeId = 2
 hybridSuperClusters.severitySpikeThreshold = 0.95
 hybridSuperClusters.excludeFlagged = True
 
+# meet data default min pt of 5 gev:
+process.photons.minSCEtBarrel = cms.double(5.0)
+process.photons.minSCEtEndcap = cms.double(5.0)
+process.photonCore.minSCEt    = cms.double(5.0)
+
 process.ecalCleanClustering = cms.Sequence(process.hybridClusteringSequence*process.photonSequence*process.photonIDSequence)
 
 
@@ -146,7 +151,7 @@ process.myanalysis = cms.EDAnalyzer("GammaJetAnalyzer",
     jetsgenakt7 = cms.untracked.InputTag("ak7GenJetsptmin2"),
     jetsgensis5 = cms.untracked.InputTag("sisCone5GenJets"),
     jetsgensis7 = cms.untracked.InputTag("sisCone7GenJets"),
-    TriggerTag = cms.untracked.InputTag("TriggerResults::HLT"),
+    TriggerTag = cms.untracked.InputTag("TriggerResults::REDIGI"),
     vertices = cms.untracked.InputTag("offlinePrimaryVertices"),
     genjetptthr = cms.double(5.),
     calojetptthr = cms.double(3.),
