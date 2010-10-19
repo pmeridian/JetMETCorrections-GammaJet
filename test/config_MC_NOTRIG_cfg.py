@@ -36,7 +36,7 @@ process.load("Geometry.CaloEventSetup.CaloTopology_cfi")
 process.source = cms.Source("PoolSource",
     skipEvents = cms.untracked.uint32(0),
     fileNames = cms.untracked.vstring(
-'file:events_RelVal363_TTbar.root'
+'file:events_RelValTTbar_START38_V12.root'
 )
 
 )
@@ -68,35 +68,6 @@ process.monster = cms.EDFilter(
 )
 
 
-###########  EB SPIKE CLEANING BEGIN #####################
-
-process.load('Configuration/StandardSequences/Services_cff')
-process.load('Configuration/StandardSequences/GeometryExtended_cff')
-process.load('Configuration/StandardSequences/MagneticField_AutoFromDBCurrent_cff')
-#process.load('Configuration/StandardSequences/RawToDigi_Data_cff')
-process.load('Configuration/StandardSequences/Reconstruction_cff')
-#process.load('Configuration/StandardSequences/EndOfProcess_cff')
-process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
-#process.load('Configuration/EventContent/EventContent_cff')
-#process.load('TrackingTools/Configuration/TrackingTools_cff')
-#process.load('RecoEgamma/EgammaElectronProducers/gsfElectronSequence_cff')
-
-process.GlobalTag.globaltag = cms.string('START36_V10::All')
-
-
-# meet data default min pt of 5 gev:
-process.photons.minSCEtBarrel = cms.double(5.0)
-process.photons.minSCEtEndcap = cms.double(5.0)
-process.photonCore.minSCEt    = cms.double(5.0)
-
-process.load('EGamma/EGammaSkims/cleanReRecoSequence_cff')
-process.ecalCleanClustering = cms.Sequence(process.cleanedEcalClusters*process.cleanedEgammaSkimReco)
-
-
-###########  EB SPIKE CLEANING END   #####################
-
-## produce JPT jets
-process.load('RecoJets.Configuration.RecoJPTJets_cff')
 
 
 
@@ -155,7 +126,7 @@ from RecoJets.JetProducers.ak5GenJets_cfi import ak5GenJets
 process.ak5GenJetsptmin2 = ak5GenJets.clone()
 process.ak5GenJetsptmin2.jetPtMin = cms.double(2.0)
 
-process.genParticlesForJets = cms.EDFilter("InputGenJetsParticleSelector",
+process.genParticlesForJets = cms.EDProducer("InputGenJetsParticleSelector",
     src = cms.InputTag("genParticles"),
     ignoreParticleIDs = cms.vuint32(
          1000022,
@@ -180,4 +151,4 @@ process.ak7GenJetsptmin2.jetPtMin = cms.double(2.0)
 
 process.new_ak7GenJets = cms.Sequence(process.genParticlesForJets* process.ak7GenJetsptmin2)
 
-process.p = cms.Path(process.new_ak5GenJets*process.new_ak7GenJets*process.monster*process.ecalCleanClustering*process.recoJPTJets*process.myanalysis)
+process.p = cms.Path(process.new_ak5GenJets*process.new_ak7GenJets*process.monster*process.myanalysis)
