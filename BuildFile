@@ -34,6 +34,8 @@
 <use name=DataFormats/L1GlobalMuonTrigger> 
 <use name=MyAnalysis/IsolationTools>
 <use name=DataFormats/PatCandidates>
+<use name=RecoJets/JetAlgorithms>
+<use name=RecoJets/JetAssociationAlgorithms>
 <flags EDM_PLUGIN=1>
 <export>
    <lib name=JetMETCorrectionsGammaJet>
