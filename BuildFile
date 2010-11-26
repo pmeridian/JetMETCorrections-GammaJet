@@ -35,6 +35,7 @@
 <use name=MyAnalysis/IsolationTools>
 <use name=DataFormats/PatCandidates>
 <use name=RecoJets/JetAlgorithms>
+<use name=RecoJets/JetProducers>
 <use name=RecoJets/JetAssociationAlgorithms>
 <flags EDM_PLUGIN=1>
 <export>
