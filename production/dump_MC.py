@@ -1,5 +1,5 @@
 #
-# $Id: $
+# $Id: dump_MC.py,v 1.3 2011/05/18 15:41:05 meridian Exp $
 #
 #  configuration to dump ntuples in MC
 #   the only diff should be for jetmet corrections
@@ -19,17 +19,23 @@ cfo = imp.load_source("pycfg", filename, handle)
 process = cfo.process
 handle.close()
 
+process.p = cms.Path(process.analysisSequence)
+
 ## DO NOT CHANGE THE PATH HERE! New modules should be added ONLY in the common configuration 
 #  only paramaters should be changes for data and MC
 process.source.fileNames = cms.untracked.vstring(
-'/store/mc/Spring11/GluGluToHToGG_M-100_7TeV-powheg-pythia6/AODSIM/PU_S1_START311_V1G1-v1/0000/FE78A3B2-B04F-E011-95D7-0025B3E0638E.root'
+#    'file:/cmsrm/pc24_2/meridian/data/GluGluToHToGG_M-115_7TeV-powheg-pythia6_AODSIM.root'
+#   '/store/mc/Spring11/DiPhotonJets_7TeV-madgraph/AODSIM/PU_S1_START311_V1G1-v1/0000/0013CD5B-186F-E011-A93E-00A0D1EEF4F8.root'
+#'file:MC-41xv10/90E5F7D6-1E56-E011-9D93-001D096D8916_DESY.root'
+'file:/cmshome/rahatlou/414p4-Hgg/src/JetMETCorrections/PaoloGammaJet/test/MC-41xv10/90E5F7D6-1E56-E011-9D93-001D096D8916_DESY.root'
 )
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1000)
 )
 
-# Global tag
+# Global tag#
+# Remember to change it and adapt to your needs #
 process.GlobalTag.globaltag = cms.string('START311_V2::All')
 
 ##  apply only L2 and L3 jet corrections in MC
@@ -39,7 +45,8 @@ process.myanalysis.JetCorrectionService_akt5 = cms.string('ak5CaloL1L2L3')
 process.myanalysis.JetCorrectionService_akt7 = cms.string('ak7CaloL2L3')
 process.myanalysis.JetCorrectionService_jptak5 = cms.string('ak5JPTL1L2L3')
 process.myanalysis.JetCorrectionService_jptak7 = cms.string('ak7JPTL2L3')
-process.myanalysis.JetCorrectionService_pfakt5 = cms.string('ak5PFL1L2L3')
+process.myanalysis.JetCorrectionService_pfakt5 = cms.string('ak5PFL1FastL2L3')
 process.myanalysis.JetCorrectionService_pfakt7 = cms.string('ak7PFL2L3')
+process.myanalysis.TriggerTag = cms.untracked.InputTag("TriggerResults::REDIGI311X")
 
-print process.dumpPython()
+#print process.dumpPython()

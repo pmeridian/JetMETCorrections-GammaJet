@@ -1,4 +1,4 @@
-# $Id: $
+# $Id: common_dump_config.py,v 1.5 2011/05/18 15:41:05 meridian Exp $
 #
 #  common configuration to dump ntuples in MC and data
 #    all changes affecting the path and additional modules msut be done here
@@ -33,7 +33,7 @@ process.load('Configuration/StandardSequences/Reconstruction_cff')
 process.source = cms.Source("PoolSource",
     skipEvents = cms.untracked.uint32(0),
     fileNames = cms.untracked.vstring(
-'/store/mc/Spring11/GluGluToHToGG_M-100_7TeV-powheg-pythia6/AODSIM/PU_S1_START311_V1G1-v1/0000/FE78A3B2-B04F-E011-95D7-0025B3E0638E.root'
+'file:/cmsrm/pc24_2/meridian/data/GluGluToHToGG_M-115_7TeV-powheg-pythia6_AODSIM.root'
 )
 
 )
@@ -42,10 +42,10 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1000)
 )
 
-#process.options = cms.untracked.PSet(
+process.options = cms.untracked.PSet(
 #    SkipEvent = cms.untracked.vstring('ProductNotFound')
-    #wantSummary = cms.untracked.bool(True)
-#)
+    wantSummary = cms.untracked.bool(True)
+)
 
 process.MessageLogger.cerr.FwkReport.reportEvery = 10
 
@@ -79,8 +79,15 @@ process.load("JetMETCorrections.Configuration.DefaultJEC_cff")
 process.load("JetMETCorrections.Type1MET.MetType1Corrections_cff")
 
 process.ak5CaloL1Offset.useCondDB = False
-process.ak5PFL1Offset.useCondDB = False
+#process.ak5PFL1Offset.useCondDB = False
 process.ak5JPTL1Offset.useCondDB = False
+
+process.ak5CaloL1Fastjet.useCondDB = False
+process.ak5PFL1Fastjet.useCondDB = False
+process.ak5JPTL1Fastjet.useCondDB = False
+
+process.ak5PFJets.doAreaFastjet = True
+#process.ak7PFJets.doAreaFastjet = True
 
 process.metMuonJESCorAK5 = process.metJESCorAK5CaloJet.clone()
 process.metMuonJESCorAK5.inputUncorJetsLabel = "ak5CaloJets"
@@ -101,6 +108,15 @@ process.softElectronTagInfos.jets =  cms.InputTag("ak5PFJets")
 ## dumper module
 process.myanalysis = cms.EDAnalyzer("GammaJetAnalyzer",
     debug = cms.bool(False),
+    dumpBeamHaloInformations = cms.untracked.bool(True),
+    dumpAKT5Jets=cms.untracked.bool(True),
+    dumpAKT7Jets=cms.untracked.bool(True),
+    dumpJPTAKT5Jets=cms.untracked.bool(False),
+    dumpJPTAKT7Jets=cms.untracked.bool(False),
+    dumpPFAKT5Jets=cms.untracked.bool(True),
+    dumpPFAKT7Jets=cms.untracked.bool(True),                                                                        
+    dumpKT4Jets=cms.untracked.bool(False),
+    dumpKT6Jets=cms.untracked.bool(False),                                    
     recoProducer = cms.string('ecalRecHit'),
     PUSummaryInfoCollection = cms.InputTag("addPileupInfo"),
     MCTruthCollection = cms.untracked.InputTag("source"),
@@ -114,7 +130,7 @@ process.myanalysis = cms.EDAnalyzer("GammaJetAnalyzer",
     JetCorrectionService_akt7 = cms.string('ak7CaloL2L3'),
     JetCorrectionService_jptak5 = cms.string('ak5JPTL1L2L3'),
     JetCorrectionService_jptak7 = cms.string('ak7JPTL2L3'),
-    JetCorrectionService_pfakt5 = cms.string('ak5PFL1L2L3'),
+    JetCorrectionService_pfakt5 = cms.string('ak5PFL1FastL2L3'),
     JetCorrectionService_pfakt7 = cms.string('ak7PFL2L3'),
     jetskt4 = cms.untracked.InputTag("kt4CaloJets"),
     jetskt6 = cms.untracked.InputTag("kt6CaloJets"),
@@ -132,6 +148,7 @@ process.myanalysis = cms.EDAnalyzer("GammaJetAnalyzer",
     jetsgenakt7 = cms.untracked.InputTag("ak7GenJets"),
     TriggerTag = cms.untracked.InputTag("TriggerResults::HLT"),
     vertices = cms.untracked.InputTag("offlinePrimaryVertices"),
+                                    
     genjetptthr = cms.double(5.),
     calojetptthr = cms.double(3.),
     pfjetptthr = cms.double(4.),
@@ -145,13 +162,16 @@ process.myanalysis = cms.EDAnalyzer("GammaJetAnalyzer",
 
 # compute rho with PF candidates
 process.load('RecoJets.JetProducers.kt4PFJets_cfi')
-process.kt6PFJets = process.kt4PFJets.clone( rParam = 0.6, doRhoFastjet = True )
-process.kt6PFJets.Rho_EtaMax = cms.double(2.5)
+process.kt6PFJets = process.kt4PFJets.clone( rParam = 0.6, doRhoFastjet = True,  doAreaFastjet = cms.bool(True), voronoiRfact = cms.double(0.9) )
+
+process.load('RecoJets.JetProducers.kt4PFJets_cfi')
+process.kt6PFJetsForIso = process.kt4PFJets.clone( rParam = 0.6, doRhoFastjet = True,  doAreaFastjet = cms.bool(True), voronoiRfact = cms.double(0.9) )
+process.kt6PFJetsForIso.Rho_EtaMax = cms.double(2.5)
 
 # compute rho with calo towers
 process.load('RecoJets.JetProducers.kt4CaloJets_cfi')
-process.kt6CaloJets = process.kt4CaloJets.clone( rParam = 0.6, doRhoFastjet = True )
-process.kt6CaloJets.Rho_EtaMax = cms.double(2.5)
+process.kt6CaloJetsForIso = process.kt4CaloJets.clone( rParam = 0.6, doRhoFastjet = True, doAreaFastjet = cms.bool(True), voronoiRfact = cms.double(0.9) )
+process.kt6CaloJetsForIso.Rho_EtaMax = cms.double(2.5)
 
 # re-reconstructing the primary vertices with the Deterministic Annealing (DA) vertex finder
 # from B. Mangano studies
@@ -169,4 +189,4 @@ process.highPurityTracks = cms.EDFilter("TrackSelector",
     cut = cms.string('quality("highPurity")')
 )
 
-process.p = cms.Path( process.monster * process.offlinePrimaryVerticesDA * process.highPurityTracks * process.kt6PFJets * process.kt6CaloJets * process.myBtag * process.metCorSequence * process.myanalysis )
+process.analysisSequence = cms.Sequence( process.monster * process.offlinePrimaryVerticesDA * process.highPurityTracks * process.kt6PFJets * process.ak5PFJets *process.kt6PFJetsForIso * process.kt6CaloJetsForIso * process.myBtag * process.metCorSequence * process.myanalysis )
