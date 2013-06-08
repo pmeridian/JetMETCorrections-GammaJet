@@ -1,5 +1,5 @@
 #
-# $Id: dump_MC_52X.py,v 1.2 2012/06/09 19:30:22 meridian Exp $
+# $Id: dump_MC_52X.py,v 1.3 2012/09/11 12:31:33 meridian Exp $
 #
 #  configuration to dump ntuples in MC
 #   the only diff should be for jetmet corrections
@@ -23,7 +23,11 @@ process.p = cms.Path(process.analysisSequence)
 
 ## DO NOT CHANGE THE PATH HERE! New modules should be added ONLY in the common configuration 
 #  only paramaters should be changes for data and MC
+<<<<<<< dump_MC_52X.py
+process.source.fileNames = cms.untracked.vstring('file:mcPool.root')
+=======
 process.source.fileNames = cms.untracked.vstring('root://pccmsrm27.cern.ch///cms/local/meridian/data/Summer12/vbf1208tev.root')
+>>>>>>> 1.3
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(100)

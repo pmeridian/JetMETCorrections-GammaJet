@@ -1,4 +1,4 @@
-# $Id: common_dump_config.py,v 1.10 2012/06/09 19:30:22 meridian Exp $
+# $Id: common_dump_config.py,v 1.11 2012/09/11 12:30:22 meridian Exp $
 #
 #  common configuration to dump ntuples in MC and data
 #    all changes affecting the path and additional modules msut be done here
@@ -17,14 +17,23 @@ process.load("FWCore.MessageLogger.MessageLogger_cfi")
 
 is41X=False
 doCleanMet=False
+metFilters=True
 
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 process.load("PhysicsTools.HepMCCandAlgos.genParticleCandidates_cfi")
-process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi")
-process.load("Geometry.CaloEventSetup.CaloGeometry_cfi")
-process.load("Geometry.TrackerGeometryBuilder.trackerGeometry_cfi")
-process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
-process.load("Geometry.CaloEventSetup.CaloTopology_cfi")
+process.load("Configuration.Geometry.GeometryIdeal_cff")
+## The geometry sequence now generates a deprecation warning
+## and so has been replaced by the one above
+process.load("Configuration.Geometry.GeometryIdeal_cff")
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+#process.load("Configuration.StandardSequences.MagneticField_cff")
+
+#process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi")
+#process.load("Geometry.CaloEventSetup.CaloGeometry_cfi")
+#process.load("Geometry.TrackerGeometryBuilder.trackerGeometry_cfi")
+#process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
+#process.load("Geometry.CaloEventSetup.CaloTopology_cfi")
+
 process.load('Configuration/StandardSequences/Reconstruction_cff')
 
 #process.SimpleMemoryCheck = cms.Service("SimpleMemoryCheck")
@@ -61,9 +70,9 @@ process.monster = cms.EDFilter(
 
 ###########  EB SPIKE CLEANING BEGIN #####################
 process.load('Configuration/StandardSequences/Services_cff')
-process.load('Configuration/StandardSequences/GeometryExtended_cff')
+#process.load('Configuration/StandardSequences/GeometryExtended_cff')
 process.load('Configuration/StandardSequences/MagneticField_AutoFromDBCurrent_cff')
-process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
+#process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
 process.GlobalTag.globaltag = cms.string('START311_V2::All')
 
 ###########  EB SPIKE CLEANING END   #####################
@@ -262,6 +271,65 @@ process.analysisSequence = cms.Sequence(  )
 if (is41X):
     process.analysisSequence *= process.offlinePrimaryVerticesDA
     process.myanalysis.vertices = cms.untracked.InputTag("offlinePrimaryVerticesDA")
+
+## The ECAL laser calibration filter
+if (metFilters):
+    process.load('RecoMET.METFilters.ecalLaserCorrFilter_cfi')
+    process.ecalLaserCorrFilter.taggingMode = cms.bool(True)
+
+## The good primary vertex filter ____________________________________________||
+    process.primaryVertexFilter = cms.EDFilter(
+        "VertexSelector",
+        src = cms.InputTag("offlinePrimaryVertices"),
+        cut = cms.string("!isFake && ndof > 4 && abs(z) <= 24 && position.Rho <= 2"),
+        filter = cms.bool(True)
+        )
+## The beam scraping filter __________________________________________________||
+    process.noscraping = cms.EDFilter(
+        "FilterOutScraping",
+        applyfilter = cms.untracked.bool(True),
+        debugOn = cms.untracked.bool(False),
+        numtrack = cms.untracked.uint32(10),
+        thresh = cms.untracked.double(0.25)
+        )
+    
+## The iso-based HBHE noise filter ___________________________________________||
+    process.load('CommonTools.RecoAlgos.HBHENoiseFilterResultProducer_cfi')
+    
+## The CSC beam halo tight filter ____________________________________________||
+##    process.load('RecoMET.METAnalyzers.CSCHaloFilter_cfi')
+    
+## The HCAL laser filter _____________________________________________________||
+    process.load("RecoMET.METFilters.hcalLaserEventFilter_cfi")
+    process.hcalLaserEventFilter.vetoByRunEventNumber=cms.untracked.bool(False)
+    process.hcalLaserEventFilter.vetoByHBHEOccupancy=cms.untracked.bool(True)
+    process.hcalLaserEventFilter.taggingMode = cms.bool(True)
+## The ECAL dead cell trigger primitive filter _______________________________||
+    process.load('RecoMET.METFilters.EcalDeadCellTriggerPrimitiveFilter_cfi')
+## For AOD and RECO recommendation to use recovered rechits
+    process.EcalDeadCellTriggerPrimitiveFilter.tpDigiCollection = cms.InputTag("ecalTPSkimNA")
+    process.EcalDeadCellTriggerPrimitiveFilter.taggingMode = cms.bool(True)
+## The EE bad SuperCrystal filter ____________________________________________||
+    process.load('RecoMET.METFilters.eeBadScFilter_cfi')
+    process.eeBadScFilter.taggingMode = cms.bool(True)
+
+## The Good vertices collection needed by the tracking failure filter ________||
+    process.goodVertices = cms.EDFilter(
+        "VertexSelector",
+        filter = cms.bool(False),
+        src = cms.InputTag("offlinePrimaryVertices"),
+        cut = cms.string("!isFake && ndof > 4 && abs(z) <= 24 && position.rho < 2")
+        )
+## The tracking failure filter _______________________________________________||
+    process.load('RecoMET.METFilters.trackingFailureFilter_cfi')
+
+    process.analysisSequence *= process.HBHENoiseFilterResultProducer
+ #   process.analysisSequence *= process.CSCTightHaloFilter  
+    process.analysisSequence *= process.hcalLaserEventFilter 
+    process.analysisSequence *= process.EcalDeadCellTriggerPrimitiveFilter  
+#    process.analysisSequence *=  process.goodVertices * process.trackingFailureFilter 
+    process.analysisSequence *=  process.eeBadScFilter 
+    process.analysisSequence *=  process.ecalLaserCorrFilter 
 
 if (doCleanMet):    
     process.analysisSequence *=  (process.highPurityTracks * process.ak5PFJets *process.kt6PFJetsForIso * process.kt6CaloJetsForIso * process.myBtag * process.PF2PAT * process.ak5PFJetsL1FastL2L3 * process.metCorSequence * process.ClusteredPFMetProducerStd  * process.cleanMETProducer *  process.producePFNoPileUp * process.myanalysis)
