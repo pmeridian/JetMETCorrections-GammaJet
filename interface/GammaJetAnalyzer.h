@@ -40,6 +40,8 @@
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
 #include "Geometry/CaloTopology/interface/CaloSubdetectorTopology.h"
 
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
+
 #include "TH1.h"
 #include "TH2D.h"
 #include "TFile.h"
@@ -114,6 +116,8 @@ class GammaJetAnalyzer : public edm::EDAnalyzer {
       static const int kPhoton = 22;
       static const int kElectron = 11;
 
+
+      std::map<std::string,float> particleLevelIsolation (const GenParticleCollection* particles, const GenParticle* particle, float DRsize, int status=1, float DRVetoSize=0.001, float chargedPtMin=0., float neutralEMPtMin=0., float neutralHadPtMin=0. );
 
       bool PhotonMITPreSelection( int photon_index, bool electronVeto);
       int PhotonCategory(int photonindex) { 
@@ -250,10 +254,36 @@ TH2D* h2_n_vs_eta;
       Int_t statusMC[nMaxMC];
       //Float_t massMC[nMaxMC];
       Int_t motherIDMC[nMaxMC];
+
       Float_t ptMC[nMaxMC];
       Float_t eMC[nMaxMC];
       Float_t etaMC[nMaxMC];
       Float_t phiMC[nMaxMC];
+
+      //Isolation is stored only for status==3 particles or for status==1 photons
+      Float_t isoParticleChargedDR01MC[nMaxMC];
+      Float_t isoParticleChargedDR02MC[nMaxMC];
+      Float_t isoParticleChargedDR03MC[nMaxMC];
+      Float_t isoParticleChargedDR04MC[nMaxMC];
+      Float_t isoParticleChargedDR05MC[nMaxMC];
+
+      Float_t isoParticleEMNeutralDR01MC[nMaxMC];
+      Float_t isoParticleEMNeutralDR02MC[nMaxMC];
+      Float_t isoParticleEMNeutralDR03MC[nMaxMC];
+      Float_t isoParticleEMNeutralDR04MC[nMaxMC];
+      Float_t isoParticleEMNeutralDR05MC[nMaxMC];
+
+      Float_t isoParticleHADNeutralDR01MC[nMaxMC];
+      Float_t isoParticleHADNeutralDR02MC[nMaxMC];
+      Float_t isoParticleHADNeutralDR03MC[nMaxMC];
+      Float_t isoParticleHADNeutralDR04MC[nMaxMC];
+      Float_t isoParticleHADNeutralDR05MC[nMaxMC];
+
+      Float_t isoPartonDR01MC[nMaxMC];
+      Float_t isoPartonDR02MC[nMaxMC];
+      Float_t isoPartonDR03MC[nMaxMC];
+      Float_t isoPartonDR04MC[nMaxMC];
+      Float_t isoPartonDR05MC[nMaxMC];
 
       Float_t genpt;
       Int_t genProcessId;
@@ -949,6 +979,63 @@ TH2D* h2_n_vs_eta;
       
       int nHLT;
       std::map<std::string, int> hltTriggers;
+      Int_t ElectronRefs0_n;
+      Float_t ElectronRefs0_et[8];
+      Float_t ElectronRefs0_eta[8];
+      Float_t ElectronRefs0_phi[8];
+      Int_t ElectronRefs1_n;
+      Float_t ElectronRefs1_et[8];
+      Float_t ElectronRefs1_eta[8];
+      Float_t ElectronRefs1_phi[8];
+      Int_t ElectronRefs2_n;
+      Float_t ElectronRefs2_et[8];
+      Float_t ElectronRefs2_eta[8];
+      Float_t ElectronRefs2_phi[8];
+      Int_t ElectronRefs3_n;
+      Float_t ElectronRefs3_et[8];
+      Float_t ElectronRefs3_eta[8];
+      Float_t ElectronRefs3_phi[8];
+      Int_t ElectronRefs4_n;
+      Float_t ElectronRefs4_et[8];
+      Float_t ElectronRefs4_eta[8];
+      Float_t ElectronRefs4_phi[8];
+      Int_t ElectronRefs5_n;
+      Float_t ElectronRefs5_et[8];
+      Float_t ElectronRefs5_eta[8];
+      Float_t ElectronRefs5_phi[8];
+      Int_t ElectronRefs6_n;
+      Float_t ElectronRefs6_et[8];
+      Float_t ElectronRefs6_eta[8];
+      Float_t ElectronRefs6_phi[8];
+      Int_t ElectronRefs7_n;
+      Float_t ElectronRefs7_et[8];
+      Float_t ElectronRefs7_eta[8];
+      Float_t ElectronRefs7_phi[8];
+
+      Int_t PhotonRefs0_n;
+      Float_t PhotonRefs0_et[8];
+      Float_t PhotonRefs0_eta[8];
+      Float_t PhotonRefs0_phi[8];
+      Int_t PhotonRefs1_n;
+      Float_t PhotonRefs1_et[8];
+      Float_t PhotonRefs1_eta[8];
+      Float_t PhotonRefs1_phi[8];
+      Int_t PhotonRefs2_n;
+      Float_t PhotonRefs2_et[8];
+      Float_t PhotonRefs2_eta[8];
+      Float_t PhotonRefs2_phi[8];
+      Int_t PhotonRefs3_n;
+      Float_t PhotonRefs3_et[8];
+      Float_t PhotonRefs3_eta[8];
+      Float_t PhotonRefs3_phi[8];
+      Int_t PhotonRefs4_n;
+      Float_t PhotonRefs4_et[8];
+      Float_t PhotonRefs4_eta[8];
+      Float_t PhotonRefs4_phi[8];
+      Int_t PhotonRefs5_n;
+      Float_t PhotonRefs5_et[8];
+      Float_t PhotonRefs5_eta[8];
+      Float_t PhotonRefs5_phi[8];
 
       int pu_n;
       int pu_true_n;

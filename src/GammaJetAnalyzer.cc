@@ -13,7 +13,7 @@
 //
 // Original Author:  Daniele del Re
 //         Created:  Thu Sep 13 16:00:15 CEST 2007
-// $Id: GammaJetAnalyzer.cc,v 1.69 2012/10/01 13:29:35 meridian Exp $
+// $Id: GammaJetAnalyzer.cc,v 1.70 2013/03/19 09:24:13 meridian Exp $
 //
 //
 
@@ -35,7 +35,7 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
+
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
@@ -97,12 +97,16 @@
 #include "FWCore/Framework/interface/TriggerNamesService.h"
 #include <FWCore/Common/interface/TriggerNames.h>
 #include <DataFormats/Common/interface/TriggerResults.h>
+#include "DataFormats/HLTReco/interface/TriggerEvent.h"
+#include "DataFormats/HLTReco/interface/TriggerObject.h"
 
 #include "SimDataFormats/Track/interface/SimTrack.h"
 #include "SimDataFormats/Track/interface/SimTrackContainer.h"
 #include "SimDataFormats/Vertex/interface/SimVertex.h"
 #include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
+
+
 
 #include "DataFormats/PatCandidates/interface/Photon.h"
 
@@ -145,6 +149,8 @@
 #include "Geometry/CaloTopology/interface/EcalPreshowerTopology.h"
 #include "Geometry/EcalAlgo/interface/EcalPreshowerGeometry.h"
 #include "RecoCaloTools/Navigation/interface/EcalPreshowerNavigator.h"
+
+#include "DataFormats/Math/interface/deltaR.h"
 
 using namespace edm;
 using namespace reco;
@@ -1190,6 +1196,239 @@ GammaJetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     } // HLT isValid
 
 
+    //added Trigger Objects
+    edm::InputTag trigEventTag("hltTriggerSummaryAOD","","HLT"); 
+    edm::Handle<trigger::TriggerEvent> trigEvent; 
+    iEvent.getByLabel(trigEventTag,trigEvent);
+
+    std::vector<std::string> temp_names;
+    temp_names.clear();
+
+
+    //temp_names.push_back("hltEG18CaloId10Iso50TrackIsoDoubleLastFilterUnseeded");
+    temp_names.push_back("hltEle32CaloIdTCaloIsoTTrkIdTTrkIsoTSC17PMMassFilter");
+    temp_names.push_back("hltEle32CaloIdTCaloIsoTTrkIdTTrkIsoTSC17TrackIsoFilter");
+    temp_names.push_back("hltEle20CaloIdVTCaloIsoVTTrkIdTTrkIsoVTSC4PMMassFilter");
+    temp_names.push_back("hltEle20CaloIdVTCaloIsoVTTrkIdTTrkIsoVTSC4TrackIsoFilter");
+  
+    //new electron triggers:
+    temp_names.push_back("hltEle17TightIdLooseIsoEle8TightIdLooseIsoTrackIsoFilter");
+    temp_names.push_back("hltEle17TightIdLooseIsoEle8TightIdLooseIsoTrackIsoDoubleFilter");
+    temp_names.push_back("hltEle17CaloIdVTCaloIsoVTTrkIdTTrkIsoVTEle8PMMassFilter");
+    temp_names.push_back("hltEle17CaloIdVTCaloIsoVTTrkIdTTrkIsoVTEle8TrackIsoFilter");
+
+    temp_names.push_back("hltEG20CaloIdVLHEFilter");
+    temp_names.push_back("hltEG30CaloIdVLHEFilter");
+    temp_names.push_back("hltPhoton50CaloIdVLHEFilter");
+    temp_names.push_back("hltPhoton75CaloIdVLHEFilter");
+    temp_names.push_back("hltPhoton90CaloIdVLHEFilter");
+
+    std::vector<unsigned int>* filter_pass = new std::vector<unsigned int>;
+    std::vector<std::string>* filter_names_HLT1 = new std::vector<std::string>;
+//     filter_pass->clear();
+//     filter_names_HLT1->clear();
+    std::vector<std::string>::iterator filter_it;
+
+    //new electron trigger
+    std::vector<trigger::TriggerObject> ElectronRefs0;
+    std::vector<trigger::TriggerObject> ElectronRefs1;
+    std::vector<trigger::TriggerObject> ElectronRefs2;
+    std::vector<trigger::TriggerObject> ElectronRefs3;
+    std::vector<trigger::TriggerObject> ElectronRefs4;
+    std::vector<trigger::TriggerObject> ElectronRefs5;
+    std::vector<trigger::TriggerObject> ElectronRefs6;
+    std::vector<trigger::TriggerObject> ElectronRefs7;
+
+    std::vector<trigger::TriggerObject> PhotonRefs0;
+    std::vector<trigger::TriggerObject> PhotonRefs1;
+    std::vector<trigger::TriggerObject> PhotonRefs2;
+    std::vector<trigger::TriggerObject> PhotonRefs3;
+    std::vector<trigger::TriggerObject> PhotonRefs4;
+
+
+    //std::vector<trigger::TriggerObject> ElectronRefs00;
+
+    if ( trigEvent.isValid() )
+      {
+	for (filter_it = temp_names.begin(); filter_it != temp_names.end(); ++filter_it){
+	  filter_names_HLT1->push_back((std::string)(*filter_it));
+	  const trigger::TriggerObjectCollection & triggerObjects = trigEvent -> getObjects();
+	  trigger::size_type filter1_idx = trigEvent -> filterIndex (edm::InputTag(*filter_it,"","HLT") ) ;   
+	  trigger::size_type n_filters    = trigEvent -> sizeFilters();
+	  if ( filter1_idx < n_filters ) {
+	    const trigger::Keys & triggerKeys ( trigEvent -> filterKeys ( filter1_idx ) );
+	    const int nkeys = triggerKeys.size();
+	    filter_pass->push_back(nkeys);
+	    for (int ikey = 0; ikey < nkeys; ++ikey ) {
+	      
+	    if (*filter_it == "hltEle32CaloIdTCaloIsoTTrkIdTTrkIsoTSC17PMMassFilter") ElectronRefs0.push_back(triggerObjects[ triggerKeys [ikey] ]);
+	    else if (*filter_it == "hltEle32CaloIdTCaloIsoTTrkIdTTrkIsoTSC17TrackIsoFilter") ElectronRefs1.push_back(triggerObjects[ triggerKeys [ikey]]);
+	    else if (*filter_it == "hltEle17TightIdLooseIsoEle8TightIdLooseIsoTrackIsoDoubleFilter") ElectronRefs2.push_back(triggerObjects[ triggerKeys [ ikey ] ]);
+	    else if (*filter_it == "hltEle17TightIdLooseIsoEle8TightIdLooseIsoTrackIsoFilter") ElectronRefs3.push_back(triggerObjects[ triggerKeys [ ikey ] ]);
+	    else if (*filter_it == "hltEle17CaloIdVTCaloIsoVTTrkIdTTrkIsoVTEle8PMMassFilter") ElectronRefs4.push_back(triggerObjects[ triggerKeys [ ikey ] ]);
+	    else if (*filter_it == "hltEle17CaloIdVTCaloIsoVTTrkIdTTrkIsoVTEle8TrackIsoFilter") ElectronRefs5.push_back(triggerObjects[ triggerKeys [ ikey ] ]);
+	    else if (*filter_it == "hltEle20CaloIdVTCaloIsoVTTrkIdTTrkIsoVTSC4PMMassFilter") ElectronRefs6.push_back(triggerObjects[ triggerKeys [ikey] ]);
+	    else if (*filter_it == "hltEle20CaloIdVTCaloIsoVTTrkIdTTrkIsoVTSC4TrackIsoFilter") ElectronRefs7.push_back(triggerObjects[ triggerKeys [ikey]]);
+	    else if (*filter_it == "hltEG20CaloIdVLHEFilter") PhotonRefs0.push_back(triggerObjects[ triggerKeys [ikey]]);
+	    else if (*filter_it == "hltEG30CaloIdVLHEFilter") PhotonRefs1.push_back(triggerObjects[ triggerKeys [ikey]]);
+	    else if (*filter_it == "hltPhoton50CaloIdVLHEFilter") PhotonRefs2.push_back(triggerObjects[ triggerKeys [ikey]]);
+	    else if (*filter_it == "hltPhoton75CaloIdVLHEFilter") PhotonRefs3.push_back(triggerObjects[ triggerKeys [ikey]]);
+	    else if (*filter_it == "hltPhoton90CaloIdVLHEFilter") PhotonRefs4.push_back(triggerObjects[ triggerKeys [ikey]]);
+	    }
+	  }
+	  else 
+	    filter_pass->push_back(0);
+	}
+      }
+
+
+    //final mass filter with L1seeded and SC
+    ElectronRefs0_n= 0;
+    for (unsigned int i=0; i<ElectronRefs0.size(); i++) {
+      if (ElectronRefs0_n >= 8) break;
+      trigger::TriggerObject pho=ElectronRefs0[i];
+      ElectronRefs0_eta[i] = pho.eta();
+      ElectronRefs0_phi[i] = pho.phi();
+      ElectronRefs0_et[i] = pho.et();
+      ElectronRefs0_n++;
+    }
+
+    //L1seeded
+    ElectronRefs1_n= 0;
+    for (unsigned int i=0; i<ElectronRefs1.size(); i++) {
+      if (ElectronRefs1_n >= 8) break;
+      trigger::TriggerObject pho=ElectronRefs1[i];
+      ElectronRefs1_eta[i] = pho.eta();
+      ElectronRefs1_phi[i] = pho.phi();
+      ElectronRefs1_et[i] = pho.et();
+      ElectronRefs1_n++;
+    }
+
+
+    //Ele17_ele8
+    //final mass filter 
+    ElectronRefs2_n= 0;
+    for (unsigned int i=0; i<ElectronRefs2.size(); i++) {
+      if (ElectronRefs2_n >= 8) break;
+      trigger::TriggerObject pho=ElectronRefs2[i];
+      ElectronRefs2_eta[i] = pho.eta();
+      ElectronRefs2_phi[i] = pho.phi();
+      ElectronRefs2_et[i] = pho.et();
+      ElectronRefs2_n++;
+    }
+
+    //L1seeded
+    ElectronRefs3_n= 0;
+    for (unsigned int i=0; i<ElectronRefs3.size(); i++) {
+      if (ElectronRefs3_n >= 8) break;
+      trigger::TriggerObject pho=ElectronRefs3[i];
+      ElectronRefs3_eta[i] = pho.eta();
+      ElectronRefs3_phi[i] = pho.phi();
+      ElectronRefs3_et[i] = pho.et();
+      ElectronRefs3_n++;
+    }
+    //final mass filter 
+    ElectronRefs4_n= 0;
+    for (unsigned int i=0; i<ElectronRefs4.size(); i++) {
+      if (ElectronRefs4_n >= 8) break;
+      trigger::TriggerObject pho=ElectronRefs4[i];
+      ElectronRefs4_eta[i] = pho.eta();
+      ElectronRefs4_phi[i] = pho.phi();
+      ElectronRefs4_et[i] = pho.et();
+      ElectronRefs4_n++;
+    }
+
+    //L1seeded
+    ElectronRefs5_n= 0;
+    for (unsigned int i=0; i<ElectronRefs5.size(); i++) {
+      if (ElectronRefs5_n >= 8) break;
+      trigger::TriggerObject pho=ElectronRefs5[i];
+      ElectronRefs5_eta[i] = pho.eta();
+      ElectronRefs5_phi[i] = pho.phi();
+      ElectronRefs5_et[i] = pho.et();
+      ElectronRefs5_n++;
+    }
+
+    //L1seeded
+    ElectronRefs6_n= 0;
+    for (unsigned int i=0; i<ElectronRefs6.size(); i++) {
+      if (ElectronRefs6_n >= 8) break;
+      trigger::TriggerObject pho=ElectronRefs6[i];
+      ElectronRefs6_eta[i] = pho.eta();
+      ElectronRefs6_phi[i] = pho.phi();
+      ElectronRefs6_et[i] = pho.et();
+      ElectronRefs6_n++;
+    }
+
+    //L1seeded
+    ElectronRefs7_n= 0;
+    for (unsigned int i=0; i<ElectronRefs7.size(); i++) {
+      if (ElectronRefs7_n >= 8) break;
+      trigger::TriggerObject pho=ElectronRefs7[i];
+      ElectronRefs7_eta[i] = pho.eta();
+      ElectronRefs7_phi[i] = pho.phi();
+      ElectronRefs7_et[i] = pho.et();
+      ElectronRefs7_n++;
+    }
+
+    //Photon20
+    PhotonRefs0_n= 0;
+    for (unsigned int i=0; i<PhotonRefs0.size(); i++) {
+      if (PhotonRefs0_n >= 8) break;
+      trigger::TriggerObject pho=PhotonRefs0[i];
+      PhotonRefs0_eta[i] = pho.eta();
+      PhotonRefs0_phi[i] = pho.phi();
+      PhotonRefs0_et[i] = pho.et();
+      PhotonRefs0_n++;
+    }
+
+    //Photon30
+    PhotonRefs1_n= 0;
+    for (unsigned int i=0; i<PhotonRefs1.size(); i++) {
+      if (PhotonRefs1_n >= 8) break;
+      trigger::TriggerObject pho=PhotonRefs1[i];
+      PhotonRefs1_eta[i] = pho.eta();
+      PhotonRefs1_phi[i] = pho.phi();
+      PhotonRefs1_et[i] = pho.et();
+      PhotonRefs1_n++;
+    }
+    //Photon50
+    PhotonRefs2_n= 0;
+    for (unsigned int i=0; i<PhotonRefs2.size(); i++) {
+      if (PhotonRefs2_n >= 8) break;
+      trigger::TriggerObject pho=PhotonRefs2[i];
+      PhotonRefs2_eta[i] = pho.eta();
+      PhotonRefs2_phi[i] = pho.phi();
+      PhotonRefs2_et[i] = pho.et();
+      PhotonRefs2_n++;
+    }
+
+    //Photon75
+    PhotonRefs3_n= 0;
+    for (unsigned int i=0; i<PhotonRefs3.size(); i++) {
+      if (PhotonRefs3_n >= 8) break;
+      trigger::TriggerObject pho=PhotonRefs3[i];
+      PhotonRefs3_eta[i] = pho.eta();
+      PhotonRefs3_phi[i] = pho.phi();
+      PhotonRefs3_et[i] = pho.et();
+      PhotonRefs3_n++;
+    }
+    //Photon90
+    PhotonRefs4_n= 0;
+    for (unsigned int i=0; i<PhotonRefs4.size(); i++) {
+      if (PhotonRefs4_n >= 8) break;
+      trigger::TriggerObject pho=PhotonRefs4[i];
+      PhotonRefs4_eta[i] = pho.eta();
+      PhotonRefs4_phi[i] = pho.phi();
+      PhotonRefs4_et[i] = pho.et();
+      PhotonRefs4_n++;
+    }
+
+
+
+    delete filter_pass;
+    delete filter_names_HLT1;
+
     if (!isMC)
       {
 
@@ -1327,9 +1566,10 @@ GammaJetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
        // Charged particles kept with >75 MeV (tracking threshold)
        if (p->status()==3 || 
 	   (p->status()==1 && deltaR<0.8 && (p->pt()>0.200 || (p->charge()!=0 && p->pt()>0.075))) || 
-	   (p->pdgId()==22 && p->status()==1 && abs(p->mother()->pdgId())<=21 )  //to select also all FSR photons
-	   ){
-	 
+	   (p->pdgId()==22 && p->status()==1 && abs(p->mother()->pdgId())<=21 ) ||  //to select also all FSR photons
+	   ( (abs(p->pdgId())>=11 && abs(p->pdgId())<=16 ) && p->status()==1 && (abs(p->mother()->pdgId())>=21 && abs(p->mother()->pdgId())<=25) ) //leptons sons of bosons
+	   )
+	 {
 	 
          pdgIdMC[nMC] = p->pdgId();
          statusMC[nMC] = p->status();
@@ -1338,14 +1578,57 @@ GammaJetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
          eMC[nMC] = p->energy();	 
          etaMC[nMC] = p->eta();	 
          phiMC[nMC] = p->phi();	 
-         
          mapMC[&(*p)] = nMC;
+
+	 //Parton and Particle Level Isolation
+	 if (p->status()==3 ||
+	     (p->pdgId()==22 && p->status()==1 && abs(p->mother()->pdgId())<=21 ) || 
+	     ((abs(p->pdgId())>=11 && abs(p->pdgId())<=16 ) && p->status()==1 && (abs(p->mother()->pdgId())>=21 && abs(p->mother()->pdgId())<=25) )
+	     )
+	   {
+	     std::map<std::string,float> isoParticleDR01=particleLevelIsolation(genParticles.product(),&(*p),0.1);
+	     std::map<std::string,float> isoParticleDR02=particleLevelIsolation(genParticles.product(),&(*p),0.2);
+	     std::map<std::string,float> isoParticleDR03=particleLevelIsolation(genParticles.product(),&(*p),0.3);
+	     std::map<std::string,float> isoParticleDR04=particleLevelIsolation(genParticles.product(),&(*p),0.4);
+	     std::map<std::string,float> isoParticleDR05=particleLevelIsolation(genParticles.product(),&(*p),0.5);
+	     
+	     std::map<std::string,float> isoPartonDR01=particleLevelIsolation(genParticles.product(),&(*p),0.1,3);
+	     std::map<std::string,float> isoPartonDR02=particleLevelIsolation(genParticles.product(),&(*p),0.2,3);
+	     std::map<std::string,float> isoPartonDR03=particleLevelIsolation(genParticles.product(),&(*p),0.3,3);
+	     std::map<std::string,float> isoPartonDR04=particleLevelIsolation(genParticles.product(),&(*p),0.4,3);
+	     std::map<std::string,float> isoPartonDR05=particleLevelIsolation(genParticles.product(),&(*p),0.5,3);
+	     
+	     isoParticleChargedDR01MC[nMC]=isoParticleDR01["Charged"];
+	     isoParticleChargedDR02MC[nMC]=isoParticleDR02["Charged"];
+	     isoParticleChargedDR03MC[nMC]=isoParticleDR03["Charged"];	     
+	     isoParticleChargedDR04MC[nMC]=isoParticleDR04["Charged"];
+	     isoParticleChargedDR05MC[nMC]=isoParticleDR05["Charged"];	     
+	     
+	     isoParticleEMNeutralDR01MC[nMC]=isoParticleDR01["EMNeutral"];
+	     isoParticleEMNeutralDR02MC[nMC]=isoParticleDR02["EMNeutral"];
+	     isoParticleEMNeutralDR03MC[nMC]=isoParticleDR03["EMNeutral"];	     
+	     isoParticleEMNeutralDR04MC[nMC]=isoParticleDR04["EMNeutral"];
+	     isoParticleEMNeutralDR05MC[nMC]=isoParticleDR05["EMNeutral"];	     
+	     
+	     isoParticleHADNeutralDR01MC[nMC]=isoParticleDR01["HADNeutral"];
+	     isoParticleHADNeutralDR02MC[nMC]=isoParticleDR02["HADNeutral"];
+	     isoParticleHADNeutralDR03MC[nMC]=isoParticleDR03["HADNeutral"];	     
+	     isoParticleHADNeutralDR04MC[nMC]=isoParticleDR04["HADNeutral"];
+	     isoParticleHADNeutralDR05MC[nMC]=isoParticleDR05["HADNeutral"];	     
+	     
+	     isoPartonDR01MC[nMC]=isoPartonDR01["Charged"]+isoPartonDR01["EMNeutral"]+isoPartonDR01["HADNeutral"];
+	     isoPartonDR02MC[nMC]=isoPartonDR02["Charged"]+isoPartonDR02["EMNeutral"]+isoPartonDR02["HADNeutral"];
+	     isoPartonDR03MC[nMC]=isoPartonDR03["Charged"]+isoPartonDR03["EMNeutral"]+isoPartonDR03["HADNeutral"];	     
+	     isoPartonDR04MC[nMC]=isoPartonDR04["Charged"]+isoPartonDR04["EMNeutral"]+isoPartonDR04["HADNeutral"];
+	     isoPartonDR05MC[nMC]=isoPartonDR05["Charged"]+isoPartonDR05["EMNeutral"]+isoPartonDR05["HADNeutral"];	     
+	   }
+	     
          ++nMC; 
 	 
          // if stable photon/electron, find parent
          if (p->status() == 1 && motherIDMC[nMC] != -1
              //&& (pdgIdMC[nMC] == kPhoton || pdgIdMC[nMC] == kElectron)) {//bug
-             && (p->pdgId() == kPhoton || p->pdgId() == kElectron)) {
+             && (p->pdgId() == kPhoton  || (abs(p->pdgId())>=11 && abs(p->pdgId())>=16)) ) {
 	   
            //const Candidate * mom = p->mother();
            const GenParticle *mom = (const GenParticle*)p->mother();
@@ -1437,11 +1720,11 @@ GammaJetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	 
 	 for (SimTrackContainer::const_iterator iSim = simTracks->begin();
 	      iSim != simTracks->end(); ++iSim) {
-	   cout << iSim->trackId() << endl;
+// 	   cout << iSim->trackId() << endl;
 	   if (!iSim->noVertex()) {
-	     cout << iSim->trackId() << endl;
+// 	     cout << iSim->trackId() << endl;
 	     assert(trackMap.find(iSim->trackId())==trackMap.end());
-	     cout << iSim->trackId() << endl;
+// 	     cout << iSim->trackId() << endl;
 	     trackMap[iSim->trackId()] = &(*iSim);
 	   }
 	 }
@@ -4266,6 +4549,35 @@ GammaJetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
    m_tree->Fill();
 }
 
+std::map<std::string,float> GammaJetAnalyzer::particleLevelIsolation(const GenParticleCollection* genParticles, const GenParticle* particle, float DRsize, int status, float DRVetoSize, float chargedPtMin, float neutralEMPtMin, float neutralHadPtMin)
+{
+  std::map<std::string,float> sumPt;
+
+  sumPt["Charged"]=0.;
+  sumPt["EMNeutral"]=0.;
+  sumPt["HADNeutral"]=0.;
+
+  for (GenParticleCollection::const_iterator p = genParticles->begin();
+       p != genParticles->end(); ++p) {
+       if (p->status() != status) 
+	 continue;
+
+       if (reco::deltaR(*p,*particle)>DRsize)
+	 continue;
+       
+       if ((reco::deltaR(*p,*particle)<DRVetoSize && p->pdgId()==particle->pdgId()) || ( &(*p) == particle ) || (p->mother() == particle) ) //remove self- veto
+	 continue;
+       
+       if (abs(p->charge())!=0 && p->pt()>chargedPtMin)
+	 sumPt["Charged"]+=p->pt();
+       else if (abs(p->pdgId())==22 && p->pt()>neutralEMPtMin)
+	 sumPt["EMNeutral"]+=p->pt();
+       else if (p->pt()>neutralHadPtMin)
+       	 sumPt["HADNeutral"]+=p->pt();
+  }
+  
+  return sumPt;
+}
 // ------------ method called once each job just before starting event loop  ------------
 void 
 GammaJetAnalyzer::beginJob()
@@ -4319,6 +4631,29 @@ GammaJetAnalyzer::beginJob()
   m_tree->Branch("etaMC",&etaMC,"etaMC[nMC]/F");
   m_tree->Branch("phiMC",&phiMC,"phiMC[nMC]/F");
 
+  m_tree->Branch("isoParticleChargedDR01MC",&isoParticleChargedDR01MC,"isoParticleChargedDR01MC[nMC]/F");
+  m_tree->Branch("isoParticleChargedDR02MC",&isoParticleChargedDR02MC,"isoParticleChargedDR02MC[nMC]/F");
+  m_tree->Branch("isoParticleChargedDR03MC",&isoParticleChargedDR03MC,"isoParticleChargedDR03MC[nMC]/F");
+  m_tree->Branch("isoParticleChargedDR04MC",&isoParticleChargedDR04MC,"isoParticleChargedDR04MC[nMC]/F");
+  m_tree->Branch("isoParticleChargedDR05MC",&isoParticleChargedDR05MC,"isoParticleChargedDR05MC[nMC]/F");
+
+  m_tree->Branch("isoParticleEMNeutralDR01MC",&isoParticleEMNeutralDR01MC,"isoParticleEMNeutralDR01MC[nMC]/F");
+  m_tree->Branch("isoParticleEMNeutralDR02MC",&isoParticleEMNeutralDR02MC,"isoParticleEMNeutralDR02MC[nMC]/F");
+  m_tree->Branch("isoParticleEMNeutralDR03MC",&isoParticleEMNeutralDR03MC,"isoParticleEMNeutralDR03MC[nMC]/F");
+  m_tree->Branch("isoParticleEMNeutralDR04MC",&isoParticleEMNeutralDR04MC,"isoParticleEMNeutralDR04MC[nMC]/F");
+  m_tree->Branch("isoParticleEMNeutralDR05MC",&isoParticleEMNeutralDR05MC,"isoParticleEMNeutralDR05MC[nMC]/F");
+
+  m_tree->Branch("isoParticleHADNeutralDR01MC",&isoParticleHADNeutralDR01MC,"isoParticleHADNeutralDR01MC[nMC]/F");
+  m_tree->Branch("isoParticleHADNeutralDR02MC",&isoParticleHADNeutralDR02MC,"isoParticleHADNeutralDR02MC[nMC]/F");
+  m_tree->Branch("isoParticleHADNeutralDR03MC",&isoParticleHADNeutralDR03MC,"isoParticleHADNeutralDR03MC[nMC]/F");
+  m_tree->Branch("isoParticleHADNeutralDR04MC",&isoParticleHADNeutralDR04MC,"isoParticleHADNeutralDR04MC[nMC]/F");
+  m_tree->Branch("isoParticleHADNeutralDR05MC",&isoParticleHADNeutralDR05MC,"isoParticleHADNeutralDR05MC[nMC]/F");
+
+  m_tree->Branch("isoPartonDR01MC",&isoPartonDR01MC,"isoPartonDR01MC[nMC]/F");
+  m_tree->Branch("isoPartonDR02MC",&isoPartonDR02MC,"isoPartonDR02MC[nMC]/F");
+  m_tree->Branch("isoPartonDR03MC",&isoPartonDR03MC,"isoPartonDR03MC[nMC]/F");
+  m_tree->Branch("isoPartonDR04MC",&isoPartonDR04MC,"isoPartonDR04MC[nMC]/F");
+  m_tree->Branch("isoPartonDR05MC",&isoPartonDR05MC,"isoPartonDR05MC[nMC]/F");
 
   m_tree->Branch("pu_n", &pu_n, "pu_n/I");
   m_tree->Branch("pu_true_n", &pu_true_n, "pu_true_n/I");
@@ -4953,6 +5288,73 @@ GammaJetAnalyzer::beginJob()
   m_tree->Branch("HLTNames",&aHLTNames);
   m_tree->Branch("HLTResults",&aHLTResults);
   //m_tree->Branch("HLTResults",&aHLTResults,"HLTResults[nHLT]/O");
+
+
+
+  //Trigger objects for trigger Matching
+  m_tree->Branch("trg17_SC_ele_n", &ElectronRefs0_n,"ElectronRefs0_n/I");
+  m_tree->Branch("trg17_SC_ele_eta", &ElectronRefs0_eta,"ElectronRefs0_eta[ElectronRefs0_n]/F");
+  m_tree->Branch("trg17_SC_ele_et", &ElectronRefs0_et,"ElectronRefs0_et[ElectronRefs0_n]/F");
+  m_tree->Branch("trg17_SC_ele_phi", &ElectronRefs0_phi,"ElectronRefs0_phi[ElectronRefs0_n]/F");
+  m_tree->Branch("trg32_ele_n", &ElectronRefs1_n,"ElectronRefs1_n/I");
+  m_tree->Branch("trg32_ele_eta", &ElectronRefs1_eta,"ElectronRefs1_eta[ElectronRefs1_n]/F");
+  m_tree->Branch("trg32_ele_et", &ElectronRefs1_et,"ElectronRefs1_et[ElectronRefs1_n]/F");
+  m_tree->Branch("trg32_ele_phi", &ElectronRefs1_phi,"ElectronRefs1_phi[ElectronRefs1_n]/F");
+
+
+  //Ele17_Ele8 trigger objects
+  m_tree->Branch("trg8_ele_n", &ElectronRefs2_n,"ElectronRefs2_n/I");
+  m_tree->Branch("trg8_ele_eta", &ElectronRefs2_eta,"ElectronRefs2_eta[ElectronRefs2_n]/F");
+  m_tree->Branch("trg8_ele_et", &ElectronRefs2_et,"ElectronRefs2_et[ElectronRefs2_n]/F");
+  m_tree->Branch("trg8_ele_phi", &ElectronRefs2_phi,"ElectronRefs2_phi[ElectronRefs2_n]/F");
+  m_tree->Branch("trg17_ele_n", &ElectronRefs3_n,"ElectronRefs3_n/I");
+  m_tree->Branch("trg17_ele_eta", &ElectronRefs3_eta,"ElectronRefs3_eta[ElectronRefs3_n]/F");
+  m_tree->Branch("trg17_ele_et", &ElectronRefs3_et,"ElectronRefs3_et[ElectronRefs3_n]/F");
+  m_tree->Branch("trg17_ele_phi", &ElectronRefs3_phi,"ElectronRefs3_phi[ElectronRefs3_n]/F");
+
+  //Ele17_Ele8_mass50 trigger objects
+  m_tree->Branch("trg8_mass50_ele_n", &ElectronRefs4_n,"ElectronRefs4_n/I");
+  m_tree->Branch("trg8_mass50_ele_eta", &ElectronRefs4_eta,"ElectronRefs4_eta[ElectronRefs4_n]/F");
+  m_tree->Branch("trg8_mass50_ele_et", &ElectronRefs4_et,"ElectronRefs4_et[ElectronRefs4_n]/F");
+  m_tree->Branch("trg8_mass50_ele_phi", &ElectronRefs4_phi,"ElectronRefs4_phi[ElectronRefs4_n]/F");
+  m_tree->Branch("trg17_mass50_ele_n", &ElectronRefs5_n,"ElectronRefs5_n/I");
+  m_tree->Branch("trg17_mass50_ele_eta", &ElectronRefs5_eta,"ElectronRefs5_eta[ElectronRefs5_n]/F");
+  m_tree->Branch("trg17_mass50_ele_et", &ElectronRefs5_et,"ElectronRefs5_et[ElectronRefs5_n]/F");
+  m_tree->Branch("trg17_mass50_ele_phi", &ElectronRefs5_phi,"ElectronRefs5_phi[ElectronRefs5_n]/F");
+
+
+  //Ele20_SC4_mass50 trigger objects
+  m_tree->Branch("trg4_mass50_SC_n", &ElectronRefs6_n,"ElectronRefs6_n/I");
+  m_tree->Branch("trg4_mass50_SC_eta", &ElectronRefs6_eta,"ElectronRefs6_eta[ElectronRefs6_n]/F");
+  m_tree->Branch("trg4_mass50_SC_et", &ElectronRefs6_et,"ElectronRefs6_et[ElectronRefs6_n]/F");
+  m_tree->Branch("trg4_mass50_SC_phi", &ElectronRefs6_phi,"ElectronRefs6_phi[ElectronRefs6_n]/F");
+  m_tree->Branch("trg20_mass50_ele_n", &ElectronRefs7_n,"ElectronRefs7_n/I");
+  m_tree->Branch("trg20_mass50_ele_eta", &ElectronRefs7_eta,"ElectronRefs7_eta[ElectronRefs7_n]/F");
+  m_tree->Branch("trg20_mass50_ele_et", &ElectronRefs7_et,"ElectronRefs7_et[ElectronRefs7_n]/F");
+  m_tree->Branch("trg20_mass50_ele_phi", &ElectronRefs7_phi,"ElectronRefs7_phi[ElectronRefs7_n]/F");
+
+
+  //PhotonID CaloVL trigger objects
+  m_tree->Branch("trg20_phoIDCaloVL_n", &PhotonRefs0_n,"PhotonRefs0_n/I");
+  m_tree->Branch("trg20_phoIDCaloVL_eta", &PhotonRefs0_eta,"PhotonRefs0_eta[PhotonRefs0_n]/F");
+  m_tree->Branch("trg20_phoIDCaloVL_et", &PhotonRefs0_et,"PhotonRefs0_et[PhotonRefs0_n]/F");
+  m_tree->Branch("trg20_phoIDCaloVL_phi", &PhotonRefs0_phi,"PhotonRefs0_phi[PhotonRefs0_n]/F");
+  m_tree->Branch("trg30_phoIDCaloVL_n", &PhotonRefs1_n,"PhotonRefs1_n/I");
+  m_tree->Branch("trg30_phoIDCaloVL_eta", &PhotonRefs1_eta,"PhotonRefs1_eta[PhotonRefs1_n]/F");
+  m_tree->Branch("trg30_phoIDCaloVL_et", &PhotonRefs1_et,"PhotonRefs1_et[PhotonRefs1_n]/F");
+  m_tree->Branch("trg30_phoIDCaloVL_phi", &PhotonRefs1_phi,"PhotonRefs1_phi[PhotonRefs1_n]/F");
+  m_tree->Branch("trg50_phoIDCaloVL_n", &PhotonRefs2_n,"PhotonRefs2_n/I");
+  m_tree->Branch("trg50_phoIDCaloVL_eta", &PhotonRefs2_eta,"PhotonRefs2_eta[PhotonRefs2_n]/F");
+  m_tree->Branch("trg50_phoIDCaloVL_et", &PhotonRefs2_et,"PhotonRefs2_et[PhotonRefs2_n]/F");
+  m_tree->Branch("trg50_phoIDCaloVL_phi", &PhotonRefs2_phi,"PhotonRefs2_phi[PhotonRefs2_n]/F");
+  m_tree->Branch("trg75_phoIDCaloVL_n", &PhotonRefs3_n,"PhotonRefs3_n/I");
+  m_tree->Branch("trg75_phoIDCaloVL_eta", &PhotonRefs3_eta,"PhotonRefs3_eta[PhotonRefs3_n]/F");
+  m_tree->Branch("trg75_phoIDCaloVL_et", &PhotonRefs3_et,"PhotonRefs3_et[PhotonRefs3_n]/F");
+  m_tree->Branch("trg75_phoIDCaloVL_phi", &PhotonRefs3_phi,"PhotonRefs3_phi[PhotonRefs3_n]/F");
+  m_tree->Branch("trg90_phoIDCaloVL_n", &PhotonRefs4_n,"PhotonRefs4_n/I");
+  m_tree->Branch("trg90_phoIDCaloVL_eta", &PhotonRefs4_eta,"PhotonRefs4_eta[PhotonRefs4_n]/F");
+  m_tree->Branch("trg90_phoIDCaloVL_et", &PhotonRefs4_et,"PhotonRefs4_et[PhotonRefs4_n]/F");
+  m_tree->Branch("trg90_phoIDCaloVL_phi", &PhotonRefs4_phi,"PhotonRefs4_phi[PhotonRefs4_n]/F");
 
   m_tree->Branch("nEle",&nEle,"nEle/I");
   m_tree->Branch("electron_px",&electron_px,"electron_px[nEle]/F");
