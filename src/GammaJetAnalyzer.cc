@@ -2226,6 +2226,9 @@ GammaJetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
    }
    
 
+   //////////////////////////////////////
+   /// ISOLATION TOOLS
+   //////////////////////////////////////
 
     // compute track isolation w/o dz cut
     float isolationtrackThresholdA = 0.0;
@@ -2262,7 +2265,6 @@ GammaJetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 				  );
         
 
-
     float isolationtrackThresholdA_newOpt = 0.0;
     float TrackConeOuterRadiusA_newOpt    = 0.4;
     float TrackConeInnerRadiusA_newOpt    = 0.02;
@@ -2295,9 +2297,20 @@ GammaJetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
         math::XYZPoint(vertexBeamSpot.x0(),vertexBeamSpot.y0(),vertexBeamSpot.z0()) );
 
 
-   SuperClusterFootprintRemoval remover03(iEvent,iSetup,edm::ParameterSet(),0.3); //V01-00
-   SuperClusterFootprintRemoval remover04(iEvent,iSetup,edm::ParameterSet(),0.4); //V01-00
+   edm::ParameterSet remover02_config;
+   remover02_config.addUntrackedParameter<double>("isolation_cone_size_forSCremoval",0.2);
+   remover02_config.addUntrackedParameter<edm::InputTag>("tag_jets",edm::InputTag("ak5PFJetsCorrected"));
+   SuperClusterFootprintRemoval remover02(iEvent,iSetup,remover02_config); 
 
+   edm::ParameterSet remover03_config;
+   remover03_config.addUntrackedParameter<double>("isolation_cone_size_forSCremoval",0.3);
+   remover03_config.addUntrackedParameter<edm::InputTag>("tag_jets",edm::InputTag("ak5PFJetsCorrected"));
+   SuperClusterFootprintRemoval remover03(iEvent,iSetup,remover03_config); 
+
+   edm::ParameterSet remover04_config;
+   remover04_config.addUntrackedParameter<double>("isolation_cone_size_forSCremoval",0.4);
+   remover04_config.addUntrackedParameter<edm::InputTag>("tag_jets",edm::InputTag("ak5PFJetsCorrected"));
+   SuperClusterFootprintRemoval remover04(iEvent,iSetup,remover04_config); 
 
    EcalClusterLazyTools lazyTools(iEvent, iSetup, edm::InputTag("reducedEcalRecHitsEB"),
 				  edm::InputTag("reducedEcalRecHitsEE"), edm::InputTag("reducedEcalRecHitsES") );
@@ -2636,7 +2649,7 @@ GammaJetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
    std::vector<reco::PFCandidate::ParticleType> temp;
    temp.push_back(reco::PFCandidate::gamma);
 //    pid_pfIsoPhotons01ForCiC[nPhot]  = cicPhotonId->pfEcalIso(localPho, 0.1, 0.0, 0.070, 0.015, 0.0, 0.0, 0.0, reco::PFCandidate::gamma);
-//    pid_pfIsoPhotons02ForCiC[nPhot]  = cicPhotonId->pfEcalIso(localPho, 0.2, 0.0, 0.070, 0.015, 0.0, 0.0, 0.0, reco::PFCandidate::gamma);
+   pid_pfIsoPhotons02ForCiC[nPhot]  = cicPhotonId->pfEcalIso(localPho, 0.2, 0.0, 0.070, 0.015, 0.0, 0.0, 0.0, reco::PFCandidate::gamma);
    pid_pfIsoPhotons03ForCiC[nPhot]  = cicPhotonId->pfEcalIso(localPho, 0.3, 0.0, 0.070, 0.015, 0.0, 0.0, 0.0, reco::PFCandidate::gamma);
    pid_pfIsoPhotons04ForCiC[nPhot]  = cicPhotonId->pfEcalIso(localPho, 0.4, 0.0, 0.070, 0.015, 0.0, 0.0, 0.0, reco::PFCandidate::gamma);
 //    pid_pfIsoPhotons05ForCiC[nPhot]  = cicPhotonId->pfEcalIso(localPho, 0.5, 0.0, 0.070, 0.015, 0.0, 0.0, 0.0, reco::PFCandidate::gamma);
@@ -2646,7 +2659,7 @@ GammaJetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
    temp.push_back(reco::PFCandidate::h0);
    // Custom Egamma and noveto are the same
 //    pid_pfIsoNeutrals01ForCiC[nPhot] = cicPhotonId->pfHcalIso(localPho, 0.1, 0.00, reco::PFCandidate::h0);
-//    pid_pfIsoNeutrals02ForCiC[nPhot] = cicPhotonId->pfHcalIso(localPho, 0.2, 0.00, reco::PFCandidate::h0);
+   pid_pfIsoNeutrals02ForCiC[nPhot] = cicPhotonId->pfHcalIso(localPho, 0.2, 0.00, reco::PFCandidate::h0);
    pid_pfIsoNeutrals03ForCiC[nPhot] = cicPhotonId->pfHcalIso(localPho, 0.3, 0.00, reco::PFCandidate::h0);
    pid_pfIsoNeutrals04ForCiC[nPhot] = cicPhotonId->pfHcalIso(localPho, 0.4, 0.00, reco::PFCandidate::h0);
 //    pid_pfIsoNeutrals05ForCiC[nPhot] = cicPhotonId->pfHcalIso(localPho, 0.5, 0.00, reco::PFCandidate::h0);
@@ -2655,13 +2668,13 @@ GammaJetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
    temp.clear();
    temp.push_back(reco::PFCandidate::h);
 //    std::vector<float> pid_pfIsoCharged01;
-//    std::vector<float> pid_pfIsoCharged02;
+   std::vector<float> pid_pfIsoCharged02;
    std::vector<float> pid_pfIsoCharged03;
    std::vector<float> pid_pfIsoCharged04;
 //    std::vector<float> pid_pfIsoCharged05;
 //    std::vector<float> pid_pfIsoCharged06;
 //    pid_pfIsoCharged01=cicPhotonId->pfTkIsoWithVertex(localPho, 0.1, 0.02, 0.02, 0.0, 0.2, 0.1, reco::PFCandidate::h); 
-//    pid_pfIsoCharged02=cicPhotonId->pfTkIsoWithVertex(localPho, 0.2, 0.02, 0.02, 0.0, 0.2, 0.1, reco::PFCandidate::h); 
+   pid_pfIsoCharged02=cicPhotonId->pfTkIsoWithVertex(localPho, 0.2, 0.02, 0.02, 0.0, 0.2, 0.1, reco::PFCandidate::h); 
    pid_pfIsoCharged03=cicPhotonId->pfTkIsoWithVertex(localPho, 0.3, 0.02, 0.02, 0.0, 0.2, 0.1, reco::PFCandidate::h); 
    pid_pfIsoCharged04=cicPhotonId->pfTkIsoWithVertex(localPho, 0.4, 0.02, 0.02, 0.0, 0.2, 0.1, reco::PFCandidate::h); 
 //    pid_pfIsoCharged05=cicPhotonId->pfTkIsoWithVertex(localPho, 0.5, 0.02, 0.02, 0.0, 0.2, 0.1, reco::PFCandidate::h); 
@@ -2669,7 +2682,7 @@ GammaJetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
    assert (
 //  	   (pid_pfIsoCharged01.size() == VertexHandle->size()) &&
-//  	   (pid_pfIsoCharged02.size() == VertexHandle->size()) &&
+  	   (pid_pfIsoCharged02.size() == VertexHandle->size()) &&
 	   (pid_pfIsoCharged03.size() == VertexHandle->size()) &&
 	   (pid_pfIsoCharged04.size() == VertexHandle->size()) //&&
 //  	   (pid_pfIsoCharged05.size() == VertexHandle->size()) &&
@@ -2679,7 +2692,7 @@ GammaJetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
    for (unsigned int iiv=0;iiv<VertexHandle->size();++iiv)
      {
 //        pid_pfIsoCharged01ForCiC[nPhot][iiv]=pid_pfIsoCharged01[iiv]; 
-//        pid_pfIsoCharged02ForCiC[nPhot][iiv]=pid_pfIsoCharged02[iiv]; 
+       pid_pfIsoCharged02ForCiC[nPhot][iiv]=pid_pfIsoCharged02[iiv]; 
        pid_pfIsoCharged03ForCiC[nPhot][iiv]=pid_pfIsoCharged03[iiv]; 
        pid_pfIsoCharged04ForCiC[nPhot][iiv]=pid_pfIsoCharged04[iiv]; 
 //        pid_pfIsoCharged05ForCiC[nPhot][iiv]=pid_pfIsoCharged05[iiv]; 
@@ -2688,18 +2701,26 @@ GammaJetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
    
    double minDR = 1000.;       
 
-   PFIsolation_struct pfIsoFPR03=remover03.PFIsolation(it->superCluster(),0);
+   PFIsolation_struct pfIsoFPR02=remover02.PFIsolation(it->superCluster(),edm::Ptr<reco::Vertex>(VertexHandle,0));
+   pid_pfIsoFPRCharged02[nPhot] = pfIsoFPR02.chargediso_primvtx; 
+   pid_pfIsoFPRNeutral02[nPhot] = pfIsoFPR02.neutraliso; 
+   pid_pfIsoFPRPhoton02[nPhot] = pfIsoFPR02.photoniso; 
+
+   PFIsolation_struct pfIsoFPR03=remover03.PFIsolation(it->superCluster(),edm::Ptr<reco::Vertex>(VertexHandle,0));
    pid_pfIsoFPRCharged03[nPhot] = pfIsoFPR03.chargediso_primvtx; 
    pid_pfIsoFPRNeutral03[nPhot] = pfIsoFPR03.neutraliso; 
    pid_pfIsoFPRPhoton03[nPhot] = pfIsoFPR03.photoniso; 
 
-   //DEBUG
-   std::cout << "DEBUG FPR " << nPhot << "::" << it->superCluster()->eta() << "," << it->superCluster()->energy() << " : " <<  pid_pfIsoFPRCharged03[nPhot] << " , " <<  pid_pfIsoFPRNeutral03[nPhot] << " , " <<  pid_pfIsoFPRPhoton03[nPhot] << std::endl;
-
-   PFIsolation_struct pfIsoFPR04=remover04.PFIsolation(it->superCluster(),0);
+   PFIsolation_struct pfIsoFPR04=remover04.PFIsolation(it->superCluster(),edm::Ptr<reco::Vertex>(VertexHandle,0));
    pid_pfIsoFPRCharged04[nPhot] = pfIsoFPR04.chargediso_primvtx; 
    pid_pfIsoFPRNeutral04[nPhot] = pfIsoFPR04.neutraliso; 
    pid_pfIsoFPRPhoton04[nPhot] = pfIsoFPR04.photoniso; 
+
+   pid_pfIsoFPRRandomConeCharged02[nPhot] = pfIsoFPR02.chargediso_primvtx_rcone; 
+   pid_pfIsoFPRRandomConeNeutral02[nPhot] = pfIsoFPR02.neutraliso_rcone;
+   pid_pfIsoFPRRandomConePhoton02[nPhot] = pfIsoFPR02.photoniso_rcone;
+   pid_pfIsoFPRRandomConeEta02[nPhot] = pfIsoFPR02.eta_rcone;
+   pid_pfIsoFPRRandomConePhi02[nPhot] = pfIsoFPR02.phi_rcone;
 
    pid_pfIsoFPRRandomConeCharged03[nPhot] = pfIsoFPR03.chargediso_primvtx_rcone; 
    pid_pfIsoFPRRandomConeNeutral03[nPhot] = pfIsoFPR03.neutraliso_rcone;
@@ -4781,6 +4802,15 @@ GammaJetAnalyzer::beginJob()
   m_tree->Branch("pid_pfIsoNeutrals04ForCiC",&pid_pfIsoNeutrals04ForCiC,"pid_pfIsoNeutrals04ForCiC[nPhot]/F");
   m_tree->Branch("pid_pfIsoNeutrals05ForCiC",&pid_pfIsoNeutrals05ForCiC,"pid_pfIsoNeutrals05ForCiC[nPhot]/F");
   m_tree->Branch("pid_pfIsoNeutrals06ForCiC",&pid_pfIsoNeutrals06ForCiC,"pid_pfIsoNeutrals06ForCiC[nPhot]/F");
+
+  m_tree->Branch("pid_pfIsoFPRCharged02",&pid_pfIsoFPRCharged02,"pid_pfIsoFPRCharged02[nPhot]/F");
+  m_tree->Branch("pid_pfIsoFPRNeutral02",&pid_pfIsoFPRNeutral02,"pid_pfIsoFPRNeutral02[nPhot]/F");
+  m_tree->Branch("pid_pfIsoFPRPhoton02",&pid_pfIsoFPRPhoton02,"pid_pfIsoFPRPhoton02[nPhot]/F");
+  m_tree->Branch("pid_pfIsoFPRRandomConeCharged02",&pid_pfIsoFPRRandomConeCharged02,"pid_pfIsoFPRRandomConeCharged02[nPhot]/F");
+  m_tree->Branch("pid_pfIsoFPRRandomConeNeutral02",&pid_pfIsoFPRRandomConeNeutral02,"pid_pfIsoFPRRandomConeNeutral02[nPhot]/F");
+  m_tree->Branch("pid_pfIsoFPRRandomConePhoton02",&pid_pfIsoFPRRandomConePhoton02,"pid_pfIsoFPRRandomConePhoton02[nPhot]/F");
+  m_tree->Branch("pid_pfIsoFPRRandomConeEta02",&pid_pfIsoFPRRandomConeEta02,"pid_pfIsoFPRRandomConeEta02[nPhot]/F");
+  m_tree->Branch("pid_pfIsoFPRRandomConePhi02",&pid_pfIsoFPRRandomConePhi02,"pid_pfIsoFPRRandomConePhi02[nPhot]/F");
 
   m_tree->Branch("pid_pfIsoFPRCharged03",&pid_pfIsoFPRCharged03,"pid_pfIsoFPRCharged03[nPhot]/F");
   m_tree->Branch("pid_pfIsoFPRNeutral03",&pid_pfIsoFPRNeutral03,"pid_pfIsoFPRNeutral03[nPhot]/F");

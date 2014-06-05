@@ -377,6 +377,15 @@ TH2D* h2_n_vs_eta;
       Float_t pid_pfIsoNeutrals05ForCiC[40]; 
       Float_t pid_pfIsoNeutrals06ForCiC[40]; 
 
+      Float_t    pid_pfIsoFPRCharged02[40];
+      Float_t    pid_pfIsoFPRNeutral02[40];
+      Float_t    pid_pfIsoFPRPhoton02[40];
+      Float_t    pid_pfIsoFPRRandomConeCharged02[40];
+      Float_t    pid_pfIsoFPRRandomConeNeutral02[40];
+      Float_t    pid_pfIsoFPRRandomConePhoton02[40];
+      Float_t    pid_pfIsoFPRRandomConeEta02[40];
+      Float_t    pid_pfIsoFPRRandomConePhi02[40];
+
       Float_t    pid_pfIsoFPRCharged03[40];
       Float_t    pid_pfIsoFPRNeutral03[40];
       Float_t    pid_pfIsoFPRPhoton03[40];
