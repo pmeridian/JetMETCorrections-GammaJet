@@ -2436,8 +2436,10 @@ GammaJetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
      // Fill default photon ID variables
      
      pid_jurECAL[nPhot] = it->ecalRecHitSumEtConeDR04();//isolationEcalRecHit
-     pid_twrHCAL[nPhot] = it->hcalTowerSumEtConeDR04();//isolationHcalRecHit
-     pid_HoverE[nPhot] = it->hadronicOverEm();
+     //     pid_twrHCAL[nPhot] = it->hcalTowerSumEtConeDR04();//isolationHcalRecHit
+     pid_twrHCAL[nPhot] = it->hcalTowerSumEtConeDR04() + (it->hadronicOverEm() - it->hadTowOverEm())*it->superCluster()->energy()/cosh(it->superCluster()->eta()); //new H/E 2012
+     pid_HoverE[nPhot] = it->hadTowOverEm(); //new H/E for 2012 data
+     //     pid_HoverE[nPhot] = it->hadronicOverEm();
      pid_hlwTrack[nPhot] = it->trkSumPtHollowConeDR04();//isolationHollowTrkCone
      pid_etawid[nPhot] = it->sigmaIetaIeta();//sqrt(it->covEtaEta());
      pid_hlwTrackNoDz[nPhot] = tkIsoCone04.getPtTracks( &(*it) );
@@ -2446,7 +2448,8 @@ GammaJetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
      pid_scphiwid[nPhot]        = it->superCluster()->phiWidth();
 
      pid_jurECAL03[nPhot] = it->ecalRecHitSumEtConeDR03();//isolationEcalRecHit
-     pid_twrHCAL03[nPhot] = it->hcalTowerSumEtConeDR03();//isolationHcalRecHit
+     //pid_twrHCAL03[nPhot] = it->hcalTowerSumEtConeDR03();//isolationHcalRecHit
+     pid_twrHCAL03[nPhot] = it->hcalTowerSumEtConeDR03() + (it->hadronicOverEm() - it->hadTowOverEm())*it->superCluster()->energy()/cosh(it->superCluster()->eta()); //new H/E 2012
      pid_hlwTrack03[nPhot] = it->trkSumPtHollowConeDR03();//isolationHollowTrkCone
      pid_hlwTrack03NoDz[nPhot] = tkIsoCone03.getPtTracks( &(*it) );
 
@@ -2772,8 +2775,10 @@ GammaJetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	 pid_deltaRToTrackPhot[nPhot] = minDR; 
       
 	 pid_jurECALElePhot[nElePhot] = bestMatchedPromptEle->dr03EcalRecHitSumEt(); 
-	 pid_twrHCALElePhot[nElePhot] = bestMatchedPromptEle->dr03HcalTowerSumEt(); 
-	 pid_HoverEElePhot[nElePhot] = bestMatchedPromptEle->hadronicOverEm(); 
+	 //	 pid_twrHCALElePhot[nElePhot] = bestMatchedPromptEle->dr03HcalTowerSumEt(); 
+	 pid_twrHCALElePhot[nElePhot] = bestMatchedPromptEle->dr03HcalDepth1TowerSumEtBc();
+	 //pid_HoverEElePhot[nElePhot] = bestMatchedPromptEle->hadronicOverEm(); 
+	 pid_HoverEElePhot[nElePhot] = bestMatchedPromptEle->hcalOverEcalBc();
 	 pid_hlwTrackElePhot[nElePhot] = bestMatchedPromptEle->dr03TkSumPt(); 
 	 pid_etawidElePhot[nElePhot] = bestMatchedPromptEle->sigmaIetaIeta(); 
 	 pid_dphivtxElePhot[nElePhot] = bestMatchedPromptEle->deltaPhiSuperClusterTrackAtVtx(); 
@@ -3070,16 +3075,19 @@ GammaJetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
      electron_matchedConv[nEle] = matchesConv;
      electron_seedType[nEle]       = itElectron->ecalDrivenSeed()+2*itElectron->trackerDrivenSeed();
      electron_nSubClusters[nEle]       = itElectron->numberOfBrems();
-     electron_HoE[nEle]          = itElectron->hadronicOverEm();
+     //     electron_HoE[nEle]          = itElectron->hadronicOverEm();
+     electron_HoE[nEle]          = itElectron->hcalOverEcalBc(); //new H/E 2012
      electron_pFlowMVA[nEle]          = itElectron->mvaOutput().mva;
      electron_SigmaIetaIeta[nEle]= itElectron->sigmaIetaIeta();
      electron_SigmaIphiIphi[nEle]= sigIPhiIPhi;
      electron_trkIso[nEle]       = itElectron->dr04TkSumPt() ;
      electron_ecalIso[nEle]      = itElectron->dr04EcalRecHitSumEt();
-     electron_hcalIso[nEle]      = itElectron->dr04HcalTowerSumEt();
+     //electron_hcalIso[nEle]      = itElectron->dr04HcalTowerSumEt();
+     electron_hcalIso[nEle]      = itElectron->dr04HcalDepth1TowerSumEtBc(); // new H/E 2012
      electron_trkIso03[nEle]       = itElectron->dr03TkSumPt() ;
      electron_ecalIso03[nEle]      = itElectron->dr03EcalRecHitSumEt();
-     electron_hcalIso03[nEle]      = itElectron->dr03HcalTowerSumEt();
+     //electron_hcalIso03[nEle]      = itElectron->dr03HcalTowerSumEt();
+     electron_hcalIso03[nEle]      = itElectron->dr03HcalDepth1TowerSumEtBc(); // new H/E 2012
      electron_dEtaIn[nEle]       = itElectron->deltaEtaSuperClusterTrackAtVtx();
      electron_dPhiIn[nEle]       = itElectron->deltaPhiSuperClusterTrackAtVtx();
      electron_sc_energy[nEle]    = itElectron->superCluster()->energy();
